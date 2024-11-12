@@ -17,7 +17,7 @@
    inbuilt FIFO to make it more useful.
 
    NOTE: Ensure the device is capable of being driven at 3.3v NOT 5v. The Pico
-   GPIO (and therefor I2C) cannot be used at 5v.
+   GPIO (and therefore I2C) cannot be used at 5v.
 
    You will need to use a level shifter on the I2C lines if you want to run the
    board at 5v.
@@ -82,6 +82,7 @@ int main() {
 #if !defined(i2c_default) || !defined(PICO_DEFAULT_I2C_SDA_PIN) || !defined(PICO_DEFAULT_I2C_SCL_PIN)
     #warning i2c/mpu6050_i2c example requires a board with I2C pins
     puts("Default I2C pins were not defined");
+    return 0;
 #else
     printf("Hello, MPU6050! Reading raw data from registers...\n");
 
@@ -111,7 +112,5 @@ int main() {
 
         sleep_ms(100);
     }
-
 #endif
-    return 0;
 }

@@ -36,6 +36,15 @@ static void iperf_report(void *arg, enum lwiperf_report_type report_type,
 #endif
 }
 
+void key_pressed_func(void *param) {
+    int key = getchar_timeout_us(0); // get any pending key press but don't wait
+    if (key == 'd' || key == 'D') {
+        cyw43_arch_lwip_begin();
+        cyw43_arch_disable_sta_mode();
+        cyw43_arch_lwip_end();
+    }
+}
+
 int main() {
     stdio_init_all();
 
@@ -43,8 +52,12 @@ int main() {
         printf("failed to initialise\n");
         return 1;
     }
+
+    // Get notified if the user presses a key
+    stdio_set_chars_available_callback(key_pressed_func, cyw43_arch_async_context());
+
     cyw43_arch_enable_sta_mode();
-    printf("Connecting to Wi-Fi...\n");
+    printf("Connecting to Wi-Fi... (press 'd' to disconnect)\n");
     if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
         printf("failed to connect.\n");
         return 1;
@@ -64,7 +77,7 @@ int main() {
 #endif
     cyw43_arch_lwip_end();
 
-    while(true) {
+    while(cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA) != CYW43_LINK_DOWN) {
 #if USE_LED
         static absolute_time_t led_time;
         static int led_on = true;
@@ -99,5 +112,6 @@ int main() {
     }
 
     cyw43_arch_deinit();
+    printf("Test complete\n");
     return 0;
 }
