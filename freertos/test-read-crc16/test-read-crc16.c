@@ -22,7 +22,7 @@
 #include "pico/stdlib.h"
 #include "pico_hal.h"
  
-#include "tusb.h"
+//#include "tusb.h"
 #include "vi.h"
 #include "pnmio.h"
 #include "error.h"
@@ -51,7 +51,7 @@
 #include "pico/stdlib.h"
 
 //#include "fs.h"
-#include "tusb.h"
+//#include "tusb.h"
 #include "vi.h"
 #include "xreceive.h"
 #include "xtransmit.h"
