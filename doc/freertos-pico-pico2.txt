@@ -1,0 +1,84 @@
+/home/devel/pico-examples/build-rp2350/freertos/hello_freertos/hello_freertos2.uf2
+Welcome to minicom 2.8
+
+OPTIONS: I18n 
+Port /dev/ttyUSB0, 13:48:51
+
+Press CTRL-A Z for help on special keys
+
+Hello from main task count=7
+blink task is on core 1
+Hello from main task count=8
+Hello from main task count=9
+Hello from worker count=3
+blink task is on core 0
+Hello from main task count=10
+blink task is on core 1
+Hello from main task count=11
+Hello from main task count=12
+Hello from main task count=13
+Hello from worker count=4
+blink task is on core 0
+Hello from main task count=14
+blink task is on core 1
+Hello from main task count=15                                                   
+Hello from main task count=16                                                   
+Hello from worker count=5                                                       
+blink task is on core 0                                                         
+Hello from main task count=17                                                   
+blink task is on core 1                                                         
+Hello from main task count=18                                                   
+Hello from main task count=19                                                   
+Hello from worker count=6                                                       
+blink task is on core 0                                                         
+Hello from main task count=20                                                   
+blink task is on core 1                                                         
+Hello from main task count=21                                                   
+Hello from main task count=22                                                   
+Hello from main task count=23                                                   
+Hello from worker count=7                                                       
+blink task is on core 0
+
+/home/devel/pico-examples/build-rp2040/freertos/hello_freertos/hello_freertos2.uf2
+devel@pi5-80:~ $ minicom myusb1
+
+Welcome to minicom 2.8
+
+OPTIONS: I18n 
+Port /dev/ttyUSB1, 15:04:52
+
+Press CTRL-A Z for help on special keys
+
+Hello from main task count=23
+Hello from worker count=7
+blink task is on core 0
+Hello from main task count=24
+blink task is on core 1
+Hello from main task count=25
+Hello from main task count=26
+Hello from worker count=8
+blink task is on core 0
+Hello from main task count=27
+blink task is on core 1
+Hello from main task count=28
+Hello from main task count=29
+Hello from worker count=9
+blink task is on core 0
+Hello from main task count=30                                                   
+blink task is on core 1                                                         
+Hello from main task count=31                                                   
+Hello from main task count=32                                                   
+Hello from main task count=33                                                   
+Hello from worker count=10                                                      
+blink task is on core 0                                                         
+Hello from main task count=34                                                   
+blink task is on core 1                                                         
+Hello from main task count=35                                                   
+Hello from main task count=36                                                   
+Hello from worker count=11                                                      
+blink task is on core 0                                                         
+Hello from main task count=37                                                   
+blink task is on core 1                                                         
+Hello from main task count=38                                                   
+Hello from main task count=39                                                   
+Hello from worker count=12   
