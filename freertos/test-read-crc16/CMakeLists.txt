@@ -10,6 +10,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     pico_async_context_freertos
     FreeRTOS-Kernel-Heap4
     pico_stdlib
+    xmodem lifting crc_crc16 cir-buf klt littlefs openjpeg
     )
 if(PICO_CYW43_SUPPORTED)
     # For led support on pico_w

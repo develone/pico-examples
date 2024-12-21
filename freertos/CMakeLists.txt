@@ -7,3 +7,4 @@ include(FreeRTOS_Kernel_import.cmake)
 
 add_subdirectory(hello_freertos)
 add_subdirectory(2tasks)
+add_subdirectory(test-read-crc16)
