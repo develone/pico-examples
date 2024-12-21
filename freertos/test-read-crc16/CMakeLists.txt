@@ -1,7 +1,9 @@
 
 set(TARGET_NAME test-read-crc16)
 add_executable(${TARGET_NAME}
-    main.c crc16.h xreceive.h xtransmit.h  vi.c vi.h comprogs.h   pnmio.h
+    test-read-crc16.c crc16.h xreceive.h xtransmit.h  vi.c vi.h comprogs.h   pnmio.h
+    pico_hal.h pnmio.h vi.h pshell.h error.h
+    lfs.h lfs_util.h
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/..
@@ -10,7 +12,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     pico_async_context_freertos
     FreeRTOS-Kernel-Heap4
     pico_stdlib
-    xmodem lifting crc_crc16 cir-buf klt littlefs openjpeg
+    xmodem lifting crc_crc16 cir-buf klt littlefs openjpeg 
     )
 if(PICO_CYW43_SUPPORTED)
     # For led support on pico_w
