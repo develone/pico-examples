@@ -1,5 +1,5 @@
 
-set(TARGET_NAME 2tasks)
+set(TARGET_NAME test-read-crc16)
 add_executable(${TARGET_NAME}
     main.c crc16.h xreceive.h xtransmit.h  vi.c vi.h comprogs.h   pnmio.h
     )
