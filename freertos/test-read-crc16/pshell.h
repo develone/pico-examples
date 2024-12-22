@@ -22,8 +22,8 @@
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 
-#include "fs.h"
-#include "tusb.h"
+//#include "fs.h"
+//#include "tusb.h"
 #include "vi.h"
 #include "xreceive.h"
 #include "xtransmit.h"

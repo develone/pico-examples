@@ -14,6 +14,7 @@
 #include "klt.h"
 #include "comprogs.h"
 /*adding pshell */
+//#include "pshell.h"
 #include "xreceive.h"
 #include "xtransmit.h"
 #include "hardware/watchdog.h"
@@ -23,7 +24,7 @@
 #include "pico_hal.h"
  
 //#include "tusb.h"
-#include "vi.h"
+//#include "vi.h"
 #include "pnmio.h"
 #include "error.h"
 /* vi: set sw=4 ts=4: */
@@ -568,6 +569,7 @@ cd_cmd (void)
   sprintf (result, "changed to %s", curdir);
 }
 
+/*
 static void
 vi_cmd (void)
 {
@@ -576,6 +578,7 @@ vi_cmd (void)
   vi (screen_x, screen_y, argc - 1, argv + 1);
   strcpy (result, VT_CLEAR "\n");
 }
+*/
 
 static void
 j2k_cmd (void)
@@ -846,7 +849,7 @@ static cmd_t cmd_table[] = {
   {"rm", rm_cmd, "remove file or directory"},
   {"status", status_cmd, "filesystem status"},
   {"unmount", unmount_cmd, "unmount filesystem"},
-  {"vi", vi_cmd, "vi editor"},
+  //{"vi", vi_cmd, "vi editor"},
   {"lsklt", lsklt_cmd, "lifting step 0 klt 1"},
   {"j2k", j2k_cmd, "In File Out Frile Compression Ratio Compression 0 Decompression 1"},	
   {"test_pnmio", test_pnmio_cmd, "test_pnmio"} 
