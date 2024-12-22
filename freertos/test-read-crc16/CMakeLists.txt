@@ -1,8 +1,8 @@
 
 set(TARGET_NAME test-read-crc16)
 add_executable(${TARGET_NAME}
-    test-read-crc16.c crc16.h xreceive.h xtransmit.h  vi.c vi.h comprogs.h   pnmio.h
-    pico_hal.h pnmio.h vi.h pshell.h error.h
+    test-read-crc16.c crc16.h xreceive.h xtransmit.h   comprogs.h   pnmio.h
+    pico_hal.h pnmio.h  pshell.h error.h
     lfs.h lfs_util.h
     )
 target_include_directories(${TARGET_NAME} PRIVATE

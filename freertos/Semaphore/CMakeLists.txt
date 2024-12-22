@@ -1,7 +1,7 @@
 
 set(TARGET_NAME Semaphore)
 add_executable(${TARGET_NAME}
-    2tasks.c
+    Semaphore.c
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/..
