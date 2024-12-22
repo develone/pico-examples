@@ -1,0 +1,46 @@
+The first working program using the FreeRTOS-Kernel for the RP2350.
+devel@pi5-80:~ $ minicom myusb0
+
+
+Welcome to minicom 2.8
+
+OPTIONS: I18n 
+Port /dev/ttyUSB0, 21:38:57
+
+Press CTRL-A Z for help on special keys
+
+Starting FreeRTOS SMP on both cores:
+Hello from worker count=0
+worker is on core 0
+main task is on core 0
+Hello from main task count=0
+blink_task starts
+blink task is on core 1
+Hello from main task count=1
+Hello from main task count=2
+Hello from main task count=3
+Hello from worker count=1
+blink task is on core 0
+Hello from main task count=4
+blink task is on core 1
+Hello from main task count=5
+Hello from main task count=6                                                    
+Hello from worker count=2                                                       
+blink task is on core 0                                                         
+Hello from main task count=7                                                    
+blink task is on core 1                                                         
+Hello from main task count=8                                                    
+Hello from main task count=9                                                    
+Hello from worker count=3                                                       
+blink task is on core 0                                                         
+Hello from main task count=10                                                   
+blink task is on core 1                                                         
+Hello from main task count=11                                                   
+Hello from main task count=12                                                   
+Hello from main task count=13                                                   
+Hello from worker count=4                                                       
+blink task is on core 0                                                         
+Hello from main task count=14                                                   
+blink task is on core 1                                                         
+Hello from main task count=15                                                   
+Hello from main task count=16 
