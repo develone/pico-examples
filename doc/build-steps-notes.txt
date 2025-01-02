@@ -1,4 +1,4 @@
-12/17/2410 
+01/01/2025
 steps for using repo https://github.com/develone/pico-examples.git 
 devel@pi5-80:~/rp2350-freeRTOS/build $ echo $FREERTOS_KERNEL_PATH
 /home/devel/pico2/freertos-lib/FreeRTOS-Kernel
@@ -20,5 +20,12 @@ devel@pi5-80:~/rp2350-freeRTOS/build $ echo $FREERTOS_KERNEL_PATH
 	or
 	make VERBOSE=1 > make_output_rp2040.txt 2>&1
 	find . -name *.uf2 | wc
-    287     287   16941
-	need 2 more test-read-crc for rp2040 & rp2350
+	289     289   17097
+
+devel@pi5-80:~/pico-examples/build-rp2350 $ ls freertos/hello_freertos_readcrc16/
+CMakeFiles           hello_freertos_readcrc16.bin  hello_freertos_readcrc16.elf      hello_freertos_readcrc16.hex  Makefile
+cmake_install.cmake  hello_freertos_readcrc16.dis  hello_freertos_readcrc16.elf.map  hello_freertos_readcrc16.uf2
+
+devel@pi5-80:~/pico-examples/build-rp2040 $ ls freertos/hello_freertos_readcrc16/
+CMakeFiles           hello_freertos_readcrc16.bin  hello_freertos_readcrc16.elf      hello_freertos_readcrc16.hex  Makefile
+cmake_install.cmake  hello_freertos_readcrc16.dis  hello_freertos_readcrc16.elf.map  hello_freertos_readcrc16.uf2
