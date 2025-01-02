@@ -1,0 +1,11 @@
+/FreeRTOS-Kernel/croutine.c
+/FreeRTOS-Kernel/event_groups.c
+/FreeRTOS-Kernel/list.c
+/FreeRTOS-Kernel/portable/MemMang/heap_4.c
+FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2350_ARM_NTZ/non_secure/port.c
+/FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2350_ARM_NTZ/non_secure/portasm.c
+/FreeRTOS-Kernel/queue.c
+/FreeRTOS-Kernel/stream_buffer.c
+/FreeRTOS-Kernel/tasks.c
+/FreeRTOS-Kernel/timers.c
+The above 10 files are what are used from FreeRTOS-Kernel source.
