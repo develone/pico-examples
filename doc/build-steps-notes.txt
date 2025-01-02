@@ -2,7 +2,7 @@
 steps for using repo https://github.com/develone/pico-examples.git 
 devel@pi5-80:~/rp2350-freeRTOS/build $ echo $FREERTOS_KERNEL_PATH
 /home/devel/pico2/freertos-lib/FreeRTOS-Kernel
-	git clone https://github.com/raspberrypi/FreeRTOS-Kernel.git
+	git clone https://github.com/raspberrypi/FreeRTOS-Kernel.git -b test-dev
 	cd FreeRTOS-Kernel
 	git submodules update --init
 	git clone https://github.com/develone/pico-examples.git
