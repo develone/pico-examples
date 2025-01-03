@@ -74,6 +74,27 @@ typedef struct
   const char *descr;
 } cmd_t;
 
+#define STORAGE_SIZE_BYTES 100
+#define TASK1_BIT  (1UL << 0UL)	//zero
+#define TASK2_BIT  (1UL << 1UL)	//1
+#define TASK3_BIT  (1UL << 2UL)	//2
+#define TASK4_BIT  (1UL << 3UL)	//3
+#define TASK5_BIT  (1UL << 4UL)	//4
+#define TASK6_BIT  (1UL << 5UL)	//5
+
+/*Used to dimension the array used to hold the streams.
+The availble space is 1 less than this */
+static uint8_t ucBufferStorage[STORAGE_SIZE_BYTES];
+
+/*The varaible used to hold the stream buffer structure*/
+StaticStreamBuffer_t xStreamBufferStruct;
+
+//StreamBufferHandle_t xStreamBuffer;
+StreamBufferHandle_t DynxStreamBuffer;
+
+//const size_t xStreamBufferSizeBytes = 100,xTriggerLevel = 10;
+//xStreamBuffer = xStreamBufferCreate(xStreamBufferSizeBytes,xTriggerLevel);
+ 
 //int l = lfs_file_size (&in), charcnt = 0, charsent = 0;
 
 // clang-format off

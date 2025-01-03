@@ -713,6 +713,46 @@ P5
   fs_file_close (&out);
 }
 
+static void
+quit_cmd (void)
+{
+  // release any resources we were using
+  if (mounted)
+    fs_unmount ();
+  strcpy (result, "");
+  run = false;
+}
+
+int
+read_tt (char *head, char *endofbuf, char *topofbuf)
+{
+
+  int i, numtoread = 64;
+  unsigned char CRC;
+
+  //printf("0x%x 0x%x 0x%x \n",ptrs.head,ptrs.endofbuf,ptrs.topofbuf);
+  for (i = 0; i < numtoread; i++)
+    {
+
+      *ptrs.head = getchar ();
+      ptrs.head =
+	(char *) bump_head (ptrs.head, ptrs.endofbuf, ptrs.topofbuf);
+    }
+
+  CRC = crc16_ccitt (tt, numtoread);
+  //printf("0x%x\n",CRC);
+  //for(i=0;i<numtoread;i++) bump_tail(ptrs.head,ptrs.endofbuf,ptrs.topofbuf);
+  //for(i=0;i<numtoread;i++) printf("%c",tt[i]);
+
+
+  //printf("\n");
+
+
+  //printf("0x%x 0x%x 0x%x \n",ptrs.head,ptrs.endofbuf,ptrs.topofbuf);
+  //printf("CRC = 0x%x\n",CRC);
+
+  return (1);
+}
 
 
 
