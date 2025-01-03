@@ -101,25 +101,7 @@ StreamBufferHandle_t DynxStreamBuffer;
 
 
 
-// clang-format on
-/*
-static const char *
-search_cmds (int len)
-{
-  if (len == 0)
-    return NULL;
-  int i, last_i, count = 0;
-  for (i = 0; i < sizeof cmd_table / sizeof cmd_table[0]; i++)
-    if (strncmp (cmd_buffer, cmd_table[i].name, len) == 0)
-      {
-	last_i = i;
-	count++;
-      }
-  if (count != 1)
-    return NULL;
-  return cmd_table[last_i].name + len;
-}
-*/
+ 
 
 static uint32_t screen_x = 80, screen_y = 24;
 static lfs_file_t file;
