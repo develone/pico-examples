@@ -1,22 +1,26 @@
-# Raspberry Pi RP2350 Pico SDK Examples - Early Access
-
-## RP2350 Instructions
-
-Everything below this section is from the stock pico-examples, so ignore URLs etc., but generally instructions are the same.
-
-The Pico SDK default continues to be to build for RP2040 (PICO_PLATFORM=rp2040), so to build for RP2350, you need to pass
-`-DPICO_PLATFORM=rp2350` to CMake (or `-DPICO_PLATFORM=rp2350-riscv` for RISC-V).
-
-Most, but not all examples, currently work on RP2350 however you should be able to do a full build with any of the above platforms (PICO_PLATFORM=host however currently fails on some examples)
-
-For RISC-V compilation, you should take a compiler from here: https://www.embecosm.com/resources/tool-chain-downloads/#riscv-stable
-
-# Original pico-examples docs
+# Raspberry Pi Pico SDK Examples
 
 ## Getting started
 
 See [Getting Started with the Raspberry Pi Pico](https://rptl.io/pico-get-started) and the README in the [pico-sdk](https://github.com/raspberrypi/pico-sdk) for information
 on getting up and running.
+
+##### Notes on different boards and platforms (RP2040 / RP2350) 
+
+The majority of examples are applicable to both RP2040 and RP2350 based boards,
+however certain examples that use chip-specific functionality will only build on that platform.
+Similarly, Wi-Fi and Bluetooth examples will only build on a board that includes Wi-Fi and Bluetooth support.
+
+Platform and board information are passed to the CMake build via the `PICO_PLATFORM` and `PICO_BOARD` variables.
+
+By default, the Pico SDK targets builds for RP2040 (`PICO_PLATFORM=rp2040`). To build for RP2350 instead, pass
+`-DPICO_PLATFORM=rp2350` to CMake (or `-DPICO_PLATFORM=rp2350-riscv` for RISC-V). Alternatively, in many cases, you can rely
+on the board configuration to set the platform for you. For example, passing `-DPICO_BOARD=pico2` will automatically select `PICO_PLATFORM=rp2350`.
+
+For more information see the "Platform and Board Configuration" chapter of 
+the [Raspberry Pi Pico-series C/C++ SDK](https://rptl.io/pico-c-sdk) book.
+
+Information on which examples are not being built is displayed during the CMake configuration step.
 
 ### First Examples
 
@@ -47,7 +51,7 @@ App|Description
 [blink_any](binary_info/blink_any) | Uses `bi_ptr` variables to create a configurable blink binary - see the separate [README](binary_info/README.md) for more details
 [hello_anything](binary_info/hello_anything) | Uses `bi_ptr` variables to create a configurable hello_world binary - see the separate [README](binary_info/README.md) for more details
 
-### Bootloaders (RP2350 Only)
+### Bootloaders (RP235x Only)
 App|Description
 ---|---
 [enc_bootloader](bootloaders/encrypted) | A bootloader which decrypts binaries from flash into SRAM. See the separate [README](bootloaders/encrypted/README.md) for more information
@@ -67,7 +71,7 @@ App|Description
 ---|---
 [build_variants](cmake/build_variants) | Builds two version of the same app with different configurations
 
-### DCP
+### DCP (RP235x Only)
 
 App|Description
 ---|---
@@ -82,11 +86,11 @@ App|Description
 [channel_irq](dma/channel_irq) | Use an IRQ handler to reconfigure a DMA channel, in order to continuously drive data through a PIO state machine.
 [sniff_crc](dma/sniff_crc) | Use the DMA engine's 'sniff' capability to calculate a CRC32 on a data buffer.
 
-### HSTX
+### HSTX (RP235x Only)
 
 App|Description
 ---|---
-[dvi_out_hstx_encoder](dvi_out_hstx_encoder) `RP2350`| Use the HSTX to output a DVI signal with 3:3:2 RGB
+[dvi_out_hstx_encoder](hstx/dvi_out_hstx_encoder) | Use the HSTX to output a DVI signal with 3:3:2 RGB
 
 ### Flash
 
@@ -157,11 +161,11 @@ App|Description
 [multicore_runner](multicore/multicore_runner) | Set up the second core to accept, and run, any function pointer pushed into its mailbox FIFO. Push in a few pieces of code and get answers back.
 [multicore_doorbell](multicore/multicore_doorbell) | Claims two doorbells for signaling between the cores. Counts how many doorbell IRQs occur on the second core and uses doorbells to coordinate exit.
 
-### OTP
+### OTP (RP235x Only)
 
 App|Description
 ---|---
-[hello_otp](otp/hello_otp) | Demonstrate reading and writing from the OTP on RP2350, along with some of the features of OTP (error correction and page locking).
+[hello_otp](otp/hello_otp) | Demonstrate reading and writing from the OTP on RP235x, along with some of the features of OTP (error correction and page locking).
 
 ### Pico Board
 
@@ -191,6 +195,7 @@ App|Description
 [picow_httpd](pico_w/wifi/httpd) | Runs a LWIP HTTP server test app
 [picow_http_client](pico_w/wifi/http_client) | Demonstrates how to make http and https requests
 [picow_http_client_verify](pico_w/wifi/http_client) | Demonstrates how to make a https request with server authentication
+[picow_mqtt_client](pico_w/wifi/mqtt) | Demonstrates how to implement a MQTT client application
 
 #### FreeRTOS examples
 
@@ -305,6 +310,7 @@ App|Description
 [uart_tx](pio/uart_tx) | Implement the transmit component of a UART serial port, and print hello world.
 [ws2812](pio/ws2812) | Examples of driving WS2812 addressable RGB LEDs.
 [addition](pio/addition) | Add two integers together using PIO. Only around 8 billion times slower than Cortex-M0+.
+[uart_pio_dma](pio/uart_pio_dma) | Send and receive data from a UART implemented using the PIO and DMA
 
 ### PWM
 
@@ -328,7 +334,7 @@ App|Description
 [rtc_alarm](rtc/rtc_alarm) | Set an alarm on the RTC to trigger an interrupt at a date/time 5 seconds into the future.
 [rtc_alarm_repeat](rtc/rtc_alarm_repeat) | Trigger an RTC interrupt once per minute.
 
-### SHA-256
+### SHA-256 (RP235x Only)
 
 App|Description
 ---|---
@@ -429,6 +435,14 @@ App|Description
 App|Description
 ---|---
 [dev_lowlevel](usb/device/dev_lowlevel) | A USB Bulk loopback implemented with direct access to the USB hardware (no TinyUSB)
+
+#### Custom CDC with SDK stdio
+
+This example demonstrates how to use the TinyUSB CDC device library to create two USB serial ports, and assign one of them to the SDK for stdio.
+
+App|Description
+---|---
+[dev_multi_cdc](usb/device/dev_multi_cdc) | A USB CDC device example with two serial ports, one of which is used for stdio. The example exposes two serial ports over USB to the host. The first port is used for stdio, and the second port is used for a simple echo loopback. You can connect to the second port and send some characters, and they will be echoed back on the first port while you will receive a "OK\r\n" message on the second port indicating that the data was received.
 
 ### USB Host
 
