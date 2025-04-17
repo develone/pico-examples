@@ -17,7 +17,9 @@
 #include "lwip/apps/lwiperf.h"
 
 #include "hardware/gpio.h"
+#include "hardware/watchdog.h"
 //#include "hardware/adc.h"
+#include "FreeRTOS.h"
 #include "tcp_debug.h"
 #include "head_tail.h"
 #include "mqtt_extra.h"
@@ -56,7 +58,40 @@ float retflg;
 uint32_t result;
 const float conversion_factor = 3.3f / (1 << 12);
 float battery;
+typedef struct NTP_T_ {
+    ip_addr_t ntp_server_address;
+    bool dns_request_sent;
+    struct udp_pcb *ntp_pcb;
+    absolute_time_t ntp_test_time;
+    alarm_id_t ntp_resend_alarm;
+} NTP_T;
 
+#define NTP_SERVER "pool.ntp.org"
+#define NTP_MSG_LEN 48
+#define NTP_PORT 123
+#define NTP_DELTA 2208988800 // seconds between 1 Jan 1900 and 1 Jan 1970
+#define NTP_TEST_TIME (30 * 1000)
+#define NTP_RESEND_TIME (10 * 1000)
+#define in1 14
+#define in2 15
+#define enA 16
+/*needed for rtc */
+/*
+datetime_t t;
+datetime_t alarm;
+datetime_t t_ntp;
+datetime_t *pt;
+datetime_t *palarm;
+datetime_t *pt_ntp;
+*/
+u8_t rtc_set_flag = 0;
+char datetime_buf[256];
+char *datetime_str = &datetime_buf[0];
+/*needed for rtc */
+/*needed for ntp*/
+/*needed for GPIO from pico-examples/gpio/hello_7segment/hello_7segment.c
+gpio will be an additional freertos task
+*/
 char * ptrhead;
 char * ptrtail;
 char * ptrendofbuf;
@@ -65,10 +100,12 @@ char client_message[BUF_SIZE];
 #include "FreeRTOS.h"
 #include "task.h"
 
+/*needed for rtc 
+datetime_t t;*/
 #ifndef RUN_FREERTOS_ON_CORE
 #define RUN_FREERTOS_ON_CORE 0
 #endif
-#define BATT_TASK_PRIORITY
+#define WATCHDOG_TASK_PRIORITY			( tskIDLE_PRIORITY + 1UL )
 #define SOCKET_TASK_PRIORITY			( tskIDLE_PRIORITY + 6UL )
 #define ADC_TASK_PRIORITY				( tskIDLE_PRIORITY + 8UL )
 #define NTP_TASK_PRIORITY				( tskIDLE_PRIORITY + 5UL )
@@ -120,7 +157,7 @@ float read_onboard_temperature(char unit) {
 
     return -50.0f;
 }
-
+/*
 static void alarm_callback(void) {
     datetime_t t = {0};
     rtc_get_datetime(&t);
@@ -135,7 +172,7 @@ static void alarm_callback(void) {
     fired = true;
     alarm_flg=1;
 }
- 
+*/
 
 void adc_task(__unused void *params) {
     //bool on = false;
@@ -249,6 +286,19 @@ void blink_task(__unused void *params) {
     }
 }
 
+void watchdog_task(__unused void *params) {
+    //bool on = false;
+
+    while (true) {
+	 
+	//if (wifi_connected == 0) watchdog_update();
+	watchdog_update();
+    
+ 
+       vTaskDelay(100);
+    }
+}
+
 void preptopidata() {
 sprintf(client_message,"0123456789012345678901234567890123456789012345678901234567890123\
 0123456789012345678901234567890123456789012345678901234567890123\
@@ -273,9 +323,10 @@ void main_task(__unused void *params) {
     } else {
         printf("Connected.\n");
     }
+    xTaskCreate(watchdog_task, "WatchdogThread", configMINIMAL_STACK_SIZE, NULL, WATCHDOG_TASK_PRIORITY, NULL);
     xTaskCreate(socket_task, "SOCKETThread", configMINIMAL_STACK_SIZE, NULL, SOCKET_TASK_PRIORITY, NULL);
     xTaskCreate(blink_task, "BlinkThread", configMINIMAL_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
-    xTaskCreate(adc_task, "ADCThread", configMINIMAL_STACK_SIZE, NULL, ADC_TASK_PRIORITY, NULL);
+    //xTaskCreate(adc_task, "ADCThread", configMINIMAL_STACK_SIZE, NULL, ADC_TASK_PRIORITY, NULL);
     //xTaskCreate(batt_task, "BATTThread", configMINIMAL_STACK_SIZE, NULL, BATT_TASK_PRIORITY, NULL);
 
     cyw43_arch_lwip_begin();
