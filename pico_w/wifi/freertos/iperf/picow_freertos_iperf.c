@@ -105,6 +105,40 @@ char *datetime_str = &datetime_buf[0];
 
 gpio will be an additional freertos task
 */
+#define FIRST_GPIO 18
+#define BUTTON_GPIO (FIRST_GPIO+7)
+
+uint tbits25;
+char bits25[2];
+u8_t reset_remote=0;
+int val = 0;
+int loop;
+// This array converts a number 0-9 to a bit pattern to send to the GPIOs
+int bits[10] = {
+        0x3f,  // 0
+        0x3e,  // 1
+        0x3d,  // 2
+        0x3c,  // 3
+        0x3b,  // 4
+        0x3a,  // 5
+        0x39,  // 6
+        0x38,  // 7
+        0x37,  // 8
+        0x36   // 9
+};
+// This array converts a number 0-9 to a bit pattern to send to the GPIOs
+int32_t mask;
+
+u8_t lp;
+u8_t alarm_hour;
+u8_t alarm_min;
+u8_t alarm_sec;
+u8_t remote_index;
+u8_t cmd;
+char houralarm[3];
+char minalarm[3];
+char secalarm[3];
+char tmp[80];
 char * ptrhead;
 char * ptrtail;
 char * ptrendofbuf;
@@ -191,7 +225,96 @@ static void alarm_callback(void) {
     fired = true;
     alarm_flg=1;
 }
-*/
+ 
+ 
+#if LWIP_TCP /*LWIP_TCP*/
+
+	/** Define this to a compile-time IP address initialization
+	 * to connect anything else than IPv4 loopback
+	 */
+	#ifndef LWIP_MQTT_EXAMPLE_IPADDR_INIT
+	#if LWIP_IPV4 /*LWIP_IPV4*/
+
+			/*192.168.1.212 0xc0a801d4 LWIP_MQTT_EXAMPLE_IPADDR_INIT pi4-50*/
+			#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801d4))
+			/*192.168.1.230 0xc0a801d4 LWIP_MQTT_EXAMPLE_IPADDR_INIT pi4-30*/
+			//#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801e6))
+
+	#else
+			#define LWIP_MQTT_EXAMPLE_IPADDR_INIT
+	#endif
+	#endif
+    
+
+
+static ip_addr_t mqtt_ip LWIP_MQTT_EXAMPLE_IPADDR_INIT;
+static mqtt_client_t* mqtt_client;
+ 
+static const struct mqtt_connect_client_info_t mqtt_client_info =
+{
+  CYW43_HOST_NAME,
+  "testuser", /* user */
+  "password123", /* pass */
+  10,  /* keep alive */
+  "topic_qos0", /* will_topic */
+  NULL, /* will_msg */
+  0,    /* will_qos */
+  0     /* will_retain */
+#if LWIP_ALTCP && LWIP_ALTCP_TLS
+  , NULL
+#endif
+};
+
+static void
+mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
+{
+  cyw43_arch_lwip_begin();
+  const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
+  LWIP_UNUSED_ARG(data);
+
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" data cb: len %d, flags %d\n", client_info->client_id,
+          (int)len, (int)flags));
+          //Sunday 2 April 1:34:48 2023      got ntp response: 02/04/2023 01:34:47    2023-04-01-19-48-24 -> 2023/04/01 19:48:24
+          if (len==10) {
+               
+              if (data[0]=='1') remote_index=1;
+              if (data[0]=='2') remote_index=2;
+              if (data[0]=='3') remote_index=3;
+              if (data[0]=='4') remote_index=4;
+              if (data[0]=='5') remote_index=5;
+              if (data[0]=='6') remote_index=6;
+              if (data[0]== 'x') remote_index=255;
+              //if (remote_index==255) printf("all remotes will act on cmd\n");
+              printf("remote%d\n",remote_index);
+              if (data[1]=='1') cmd=1;
+              if (data[1]=='2') cmd=2;
+              if (data[1]=='3') cmd=3;
+              if (data[1]=='4') cmd=4;
+              if (data[1]=='5') cmd=5;
+              if (data[1]=='6') cmd=6;
+              if (data[1]=='7') cmd=7;
+              if (data[1]=='8') cmd=8;
+              if (data[1]=='9') cmd=9;
+              if (cmd==1) {
+                  strncpy(&houralarm[0],&data[2],2);
+                  strncpy(&minalarm[0],&data[4],2);
+                  strncpy(&secalarm[0],&data[6],2);
+                  //printf("%s %s %s\n",houralarm,minalarm,secalarm);
+                  alarm_hour=atoi(&houralarm[0]);
+                  alarm_min=atoi(&minalarm[0]);
+                  alarm_sec=atoi(&secalarm[0]);
+                  
+              }
+ 
+              strncpy(&bits25[0],&data[2],1);
+              tbits25=atoi(&bits25[0]);
+              printf("data[2] %c tbits25 %d \n",data[2],tbits25);
+              process_cmd(remote_index, cmd);
+ 
+          }    
+  cyw43_arch_lwip_end();
+     
+}
 
 void adc_task(__unused void *params) {
     printf("adc_task starts\n");
@@ -385,6 +508,21 @@ void vLaunch( void) {
     /* Start the tasks and timer running. */
     vTaskStartScheduler();
 }
+
+// Call back with a DNS result
+static void ntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg) {
+    NTP_T *state = (NTP_T*)arg;
+    if (ipaddr) {
+        state->ntp_server_address = *ipaddr;
+        printf("ntp address %s\n", ip4addr_ntoa(ipaddr));
+        ntp_request(state);
+    } else {
+        printf("ntp dns request failed\n");
+        ntp_result(state, -1, NULL);
+    }
+}
+
+
 
 int main( void )
 {
