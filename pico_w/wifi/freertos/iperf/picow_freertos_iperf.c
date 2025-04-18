@@ -3,6 +3,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "tcp_debug.h"
+#include "head_tail.h"
+#include "mqtt_extra.h"
+
 
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
@@ -18,18 +22,26 @@
 
 #include "hardware/gpio.h"
 #include "hardware/watchdog.h"
-//#include "hardware/adc.h"
+#include "hardware/adc.h"
 #include "FreeRTOS.h"
-#include "tcp_debug.h"
-#include "head_tail.h"
-#include "mqtt_extra.h"
+#include "pico/util/datetime.h"
+char remotes[6][8]={"remote1","remote2","remote3","remote4","remote5","remote6"};
+
 u8_t lp;
 u8_t alarm_hour;
 u8_t alarm_min;
 u8_t alarm_sec;
+#define BATT_TASK_PRIORITY				( tskIDLE_PRIORITY + 11UL )
+#define WATCHDOG_TASK_PRIORITY			( tskIDLE_PRIORITY + 1UL )
+#define SOCKET_TASK_PRIORITY			( tskIDLE_PRIORITY + 6UL )
+#define ADC_TASK_PRIORITY				( tskIDLE_PRIORITY + 8UL )
+#define NTP_TASK_PRIORITY				( tskIDLE_PRIORITY + 5UL )
+#define TEST_TASK_PRIORITY				( tskIDLE_PRIORITY + 2UL )
+#define BLINK_TASK_PRIORITY				( tskIDLE_PRIORITY + 1UL )
+
 u8_t remote_index;
 u8_t cmd;
-char houralarm[3];
+
 char minalarm[3];
 char secalarm[3];
 char tmp[80];
@@ -76,6 +88,9 @@ typedef struct NTP_T_ {
 #define in2 15
 #define enA 16
 /*needed for rtc */
+/*needed for ntp*/
+/*needed for GPIO from pico-examples/gpio/hello_7segment/hello_7segment.c*/
+/*needed for rtc */
 /*
 datetime_t t;
 datetime_t alarm;
@@ -83,13 +98,11 @@ datetime_t t_ntp;
 datetime_t *pt;
 datetime_t *palarm;
 datetime_t *pt_ntp;
-*/
+
 u8_t rtc_set_flag = 0;
 char datetime_buf[256];
 char *datetime_str = &datetime_buf[0];
-/*needed for rtc */
-/*needed for ntp*/
-/*needed for GPIO from pico-examples/gpio/hello_7segment/hello_7segment.c
+
 gpio will be an additional freertos task
 */
 char * ptrhead;
@@ -105,12 +118,6 @@ datetime_t t;*/
 #ifndef RUN_FREERTOS_ON_CORE
 #define RUN_FREERTOS_ON_CORE 0
 #endif
-#define WATCHDOG_TASK_PRIORITY			( tskIDLE_PRIORITY + 1UL )
-#define SOCKET_TASK_PRIORITY			( tskIDLE_PRIORITY + 6UL )
-#define ADC_TASK_PRIORITY				( tskIDLE_PRIORITY + 8UL )
-#define NTP_TASK_PRIORITY				( tskIDLE_PRIORITY + 5UL )
-#define TEST_TASK_PRIORITY				( tskIDLE_PRIORITY + 2UL )
-#define BLINK_TASK_PRIORITY				( tskIDLE_PRIORITY + 1UL )
 
 #include "lwip/apps/mqtt.h"
 #include "mqtt_example.h"
@@ -124,6 +131,18 @@ u8_t close_flg=0;
 #error IPERF_SERVER_IP not defined
 #endif
 
+/*
+// Start on Wednesday 13th January 2021 11:20:00
+datetime_t t = {
+    .year  = 2020,
+    .month = 01,
+    .day   = 13,
+    .dotw  = 3, // 0 is Sunday, so 3 is Wednesday
+    .hour  = 11,
+    .min   = 20,
+    .sec   = 00
+};
+*/
 // Report IP results and exit
 static void iperf_report(void *arg, enum lwiperf_report_type report_type,
                          const ip_addr_t *local_addr, u16_t local_port, const ip_addr_t *remote_addr, u16_t remote_port,
@@ -175,6 +194,7 @@ static void alarm_callback(void) {
 */
 
 void adc_task(__unused void *params) {
+    printf("adc_task starts\n");
     //bool on = false;
     adc_init();
  
@@ -199,6 +219,7 @@ void adc_task(__unused void *params) {
 }
 
 void batt_task(__unused void *params) {
+    printf("batt_task starts\n");
     //bool on = false;
     //adc_init();
      
@@ -239,7 +260,7 @@ void ntp_task(__unused void *params) {
 
 void socket_task(__unused void *params) {
 	
-	//printf("socket_task starts\n");
+	printf("socket_task starts\n");
     TCP_SERVER_T *state = tcp_server_init();
     if (!state) {
         return;
@@ -288,6 +309,7 @@ void blink_task(__unused void *params) {
 
 void watchdog_task(__unused void *params) {
     //bool on = false;
+    printf("watchdog_task starts\n");
 
     while (true) {
 	 
@@ -326,8 +348,8 @@ void main_task(__unused void *params) {
     xTaskCreate(watchdog_task, "WatchdogThread", configMINIMAL_STACK_SIZE, NULL, WATCHDOG_TASK_PRIORITY, NULL);
     xTaskCreate(socket_task, "SOCKETThread", configMINIMAL_STACK_SIZE, NULL, SOCKET_TASK_PRIORITY, NULL);
     xTaskCreate(blink_task, "BlinkThread", configMINIMAL_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
-    //xTaskCreate(adc_task, "ADCThread", configMINIMAL_STACK_SIZE, NULL, ADC_TASK_PRIORITY, NULL);
-    //xTaskCreate(batt_task, "BATTThread", configMINIMAL_STACK_SIZE, NULL, BATT_TASK_PRIORITY, NULL);
+    xTaskCreate(adc_task, "ADCThread", configMINIMAL_STACK_SIZE, NULL, ADC_TASK_PRIORITY, NULL);
+    xTaskCreate(batt_task, "BATTThread", configMINIMAL_STACK_SIZE, NULL, BATT_TASK_PRIORITY, NULL);
 
     cyw43_arch_lwip_begin();
 #if CLIENT_TEST
