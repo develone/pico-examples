@@ -1,0 +1,55 @@
+04/18/25 Initial started with 1 pico_w and 1 pico2_w 2nd pico_w & 2nd pico2_w added
+devel@pi4-60:~ $ ./build_cli.sh
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli1
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli2
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli3
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli4
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli5
+-rwxr-xr-x   1 devel devel 14088 Apr 18 04:52 cli6
+
+This was the devel@pi4-60:~/pi_tcp_tests/client.c 
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#ifdef rem1
+ 
+        #define ip "192.168.1.128"  first pico2_w
+#endif
+#ifdef rem2
+ 
+        #define ip "192.168.1.160"	first pico_w
+#endif
+#ifdef rem3
+ 
+        #define ip "192.168.1.129"	2nd pico2_w
+#endif
+#ifdef rem4
+ 
+        #define ip "192.168.1.176"	2nd pico_w
+#endif
+#ifdef rem5
+ 
+        #define ip "192.168.1.159"
+#endif
+#ifdef rem6
+ 
+        #define ip "192.168.1.175"
+#endif
+
+devel@pi4-60:~/pi_tcp_tests $ ./cli1
+Socket created successfully
+Connected with server successfully
+Vbatt task 0x03c -> 0.048340 Vbatt task 0x03d -> 0.049146 Vbatt task 0x038 -> 0.045117 Vbatt task 0x03d -> 0.049146 Vbatt task 0x03d -> 0.049146 Vbatt task 0x03d -> 0.049146 Vbatt task 0x039 -> 0.045923 Vbatt task 0x03c -> 0.048340 Vbatt task 0x03c -> 0.048340 Vbatt task 0x03a -> 0.046729 Vbatt task 0x03c -> 0.048340 Vbatt task 0x03d -> 0.049146 Vbatt task 0x03d -> 0.049146 Vbatt t�C�
+devel@pi4-60:~/pi_tcp_tests $ ./cli2
+Socket created successfully
+Connected with server successfully
+Vbatt task 0x044 -> 0.054785 Vbatt task 0x043 -> 0.053979 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 -> 0.054785 Vbatt task 0x043 -> 0.053979 Vbatt task 0x044 -> 0.054785 V0x045 -> 0.055591 Vbatt task 0x045 -> 0.055591 Vbatt task 0x044 -> 0.054785 Vbatt task 0x044 ���
+devel@pi4-60:~/pi_tcp_tests $ ./cli3
+Socket created successfully
+Connected with server successfully
+batt task 0x000 -> 0.000000 Vbatt task 0x040 -> 0.051562 Vbatt task 0x03e -> 0.049951 Vbatt task 0x040 -> 0.051562 Vbatt task 0x03e -> 0.049951 Vbatt task 0x03e -> 0.049951 Vbatt task 0x043 -> 0.053979 Vbatt task 0x043 -> 0.053979 Vbatt task 0x043 -> 0.053979 Vbatt task 0x043 -> 0.053979 Vbatt task 0x042 -> 0.053174 V30123456789012345678901234567890123456789012345678901234567890123���
+^[[devel@pi4-60:~/pi_tcp_tests $ ./cli4
+Socket created successfully
+Connected with server successfully
+batt task 0x046 -> 0.056396 Vbatt task 0x046 -> 0.056396 Vbatt task 0x048 -> 0.058008 Vbatt task 0x047 -> 0.057202 Vbatt task 0x048 -> 0.058008 Vbatt task 0x048 -> 0.058008 Vbatt task 0x048 -> 0.058008 Vbatt task 0x048 -> 0.058008 Vbatt task 0x048 -> 0.058008 Vbatt task 0x047 -> 0.057202 Vbatt task 0x047 -> 0.057202 V30123456789012345678901234567890123456789012345678901234567890123���
