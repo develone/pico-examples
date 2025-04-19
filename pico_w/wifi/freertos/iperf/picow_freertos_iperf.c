@@ -23,24 +23,29 @@
 #include "hardware/gpio.h"
 #include "hardware/watchdog.h"
 #include "hardware/adc.h"
-#include "FreeRTOS.h"
+#include "FreeRTOS.h" 
+#include "task.h"
+/*
+#include "hardware/rtc.h"
+*/
+#include "pico/util/datetime.h"
+#include "lwip/apps/mqtt.h"
+#include "mqtt_example.h"
 #include "pico/util/datetime.h"
 char remotes[6][8]={"remote1","remote2","remote3","remote4","remote5","remote6"};
 
-u8_t lp;
-u8_t alarm_hour;
-u8_t alarm_min;
-u8_t alarm_sec;
+
+int rr[6];
 #define BATT_TASK_PRIORITY				( tskIDLE_PRIORITY + 11UL )
-#define WATCHDOG_TASK_PRIORITY			( tskIDLE_PRIORITY + 1UL )
-#define SOCKET_TASK_PRIORITY			( tskIDLE_PRIORITY + 6UL )
 #define ADC_TASK_PRIORITY				( tskIDLE_PRIORITY + 8UL )
 #define NTP_TASK_PRIORITY				( tskIDLE_PRIORITY + 5UL )
+#define WATCHDOG_TASK_PRIORITY			( tskIDLE_PRIORITY + 1UL )
+#define MQTT_TASK_PRIORITY				( tskIDLE_PRIORITY + 4UL )  
+#define SOCKET_TASK_PRIORITY			( tskIDLE_PRIORITY + 6UL )
 #define TEST_TASK_PRIORITY				( tskIDLE_PRIORITY + 2UL )
 #define BLINK_TASK_PRIORITY				( tskIDLE_PRIORITY + 1UL )
 
-u8_t remote_index;
-u8_t cmd;
+
 
 char minalarm[3];
 char secalarm[3];
@@ -51,7 +56,7 @@ char * ptrtail;
 char * ptrendofbuf;
 char * ptrtopofbuf;
 char client_message[BUF_SIZE]; 
-//mqtt_request_cb_t pub_mqtt_request_cb_t; 
+mqtt_request_cb_t pub_mqtt_request_cb_t; 
 
 u16_t mqtt_port = 1883;
 
@@ -91,6 +96,11 @@ typedef struct NTP_T_ {
 /*needed for ntp*/
 /*needed for GPIO from pico-examples/gpio/hello_7segment/hello_7segment.c*/
 /*needed for rtc */
+uint tbits25;
+char bits25[2];
+u8_t reset_remote=0;
+int val = 0;
+int loop;
 /*
 datetime_t t;
 datetime_t alarm;
@@ -102,17 +112,16 @@ datetime_t *pt_ntp;
 u8_t rtc_set_flag = 0;
 char datetime_buf[256];
 char *datetime_str = &datetime_buf[0];
-
+/*needed for rtc */
+/*needed for ntp*/
+/*needed for GPIO from pico-examples/gpio/hello_7segment/hello_7segment.c
 gpio will be an additional freertos task
 */
 #define FIRST_GPIO 18
 #define BUTTON_GPIO (FIRST_GPIO+7)
 
-uint tbits25;
-char bits25[2];
-u8_t reset_remote=0;
-int val = 0;
-int loop;
+
+
 // This array converts a number 0-9 to a bit pattern to send to the GPIOs
 int bits[10] = {
         0x3f,  // 0
@@ -153,9 +162,7 @@ datetime_t t;*/
 #define RUN_FREERTOS_ON_CORE 0
 #endif
 
-#include "lwip/apps/mqtt.h"
-#include "mqtt_example.h"
-#include "pico/util/datetime.h"
+
 static volatile bool fired = false;
 
 u8_t alarm_flg=0;
@@ -225,7 +232,7 @@ static void alarm_callback(void) {
     fired = true;
     alarm_flg=1;
 }
- 
+*/ 
  
 #if LWIP_TCP /*LWIP_TCP*/
 
@@ -236,9 +243,9 @@ static void alarm_callback(void) {
 	#if LWIP_IPV4 /*LWIP_IPV4*/
 
 			/*192.168.1.212 0xc0a801d4 LWIP_MQTT_EXAMPLE_IPADDR_INIT pi4-50*/
-			#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801d4))
+			//#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801d4))
 			/*192.168.1.230 0xc0a801d4 LWIP_MQTT_EXAMPLE_IPADDR_INIT pi4-30*/
-			//#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801e6))
+			#define LWIP_MQTT_EXAMPLE_IPADDR_INIT = IPADDR4_INIT(PP_HTONL(0xc0a801e6))
 
 	#else
 			#define LWIP_MQTT_EXAMPLE_IPADDR_INIT
@@ -315,6 +322,54 @@ mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
   cyw43_arch_lwip_end();
      
 }
+static void
+mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
+{
+  cyw43_arch_lwip_begin();  
+  const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
+
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" publish cb: topic %s, len %d\n", client_info->client_id,
+          topic, (int)tot_len));
+  cyw43_arch_lwip_end();
+}
+static void
+mqtt_request_cb(void *arg, err_t err)
+{
+  cyw43_arch_lwip_begin();  
+  const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
+
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" request cb: err %d\n", client_info->client_id, (int)err));
+  cyw43_arch_lwip_end();
+}
+static void
+mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status)
+{
+  cyw43_arch_lwip_begin();
+  const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
+  LWIP_UNUSED_ARG(client);
+
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection cb: status %d\n", client_info->client_id, (int)status));
+    if((int)status==256) {
+	/*connecttion with broker lost*/
+	reset_remote=1;
+	watchdog_enable(10, 1);
+	while(reset_remote) {
+	}
+    }
+  if (status == MQTT_CONNECT_ACCEPTED) {
+    mqtt_sub_unsub(client,
+            "topic_qos1", 1,
+            mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
+            1);
+    mqtt_sub_unsub(client,
+            "topic_qos0", 0,
+            mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
+            1);
+  cyw43_arch_lwip_end();
+  }
+}
+
+#endif /* LWIP_TCP */
 
 void adc_task(__unused void *params) {
     printf("adc_task starts\n");
@@ -380,6 +435,61 @@ void ntp_task(__unused void *params) {
         vTaskDelay(2200);
     }
 }
+
+void mqtt_task(__unused void *params) {
+    //bool on = false;
+    //printf("mqtt_task starts\n");
+    cyw43_arch_lwip_begin();
+mqtt_subscribe(mqtt_client,"pico/cmds", 2,pub_mqtt_request_cb_t,PUB_EXTRA_ARG_T);
+strcpy(PUB_PAYLOAD_SCR_T,PUB_PAYLOAD_T);
+  //strcat( PUB_PAYLOAD_SCR,CYW43_HOST_NAME);
+  //payload_t_size = sizeof(PUB_PAYLOAD_SCR_T);
+  
+
+cyw43_arch_lwip_end();
+    while (true) {
+        cyw43_arch_lwip_begin();
+            check_mqtt_connected = mqtt_client_is_connected(mqtt_client);
+            if (check_mqtt_connected==0) printf("mqtt_connection_lost\n");
+                mqtt_connection_lost();
+        cyw43_arch_lwip_end();
+#if 0 && configNUM_CORES > 1
+        static int last_core_id;
+        if (portGET_CORE_ID() != last_core_id) {
+            last_core_id = portGET_CORE_ID();
+            //printf("mqtt now from core %d\n", last_core_id);
+        }
+#endif
+        //cyw43_arch_gpio_put(0, on);
+        //on = !on;
+        //printf("in mqtt\n");
+        /*
+  strcpy(PUB_PAYLOAD_SCR,PUB_PAYLOAD);
+  strcat( PUB_PAYLOAD_SCR,CYW43_HOST_NAME);
+  payload_size = sizeof(PUB_PAYLOAD_SCR) + 7;
+  
+  strcpy(PUB_PAYLOAD_SCR_TEMP1,PUB_PAYLOAD_TEMP1);
+  strcat( PUB_PAYLOAD_SCR_TEMP1,CYW43_HOST_NAME);
+  payload_size_temp1 = sizeof(PUB_PAYLOAD_SCR_TEMP1) + 7;
+  */
+  //printf("%s  %d \n",PUB_PAYLOAD_SCR,sizeof(PUB_PAYLOAD_SCR));
+  //sprintf(tmp,"mqtt_connect 0x%x ",check_mqtt_connected);
+  //head = head_tail_helper(head, tail, endofbuf, topofbuf, tmp);
+
+  //sprintf(tmp,"mq_con 0x%x ",check_mqtt_connected);
+  //head = head_tail_helper(head, tail, endofbuf, topofbuf, tmp);
+  
+  	
+  /*
+  mqtt_client_is_connected 1 if connected to server, 0 otherwise 
+  */
+  cyw43_arch_lwip_begin();	
+  mqtt_publish(mqtt_client,"pico/status",PUB_PAYLOAD_SCR_T,payload_t_size,2,0,pub_mqtt_request_cb_t,PUB_EXTRA_ARG_T);
+   cyw43_arch_lwip_end();	
+        vTaskDelay(10000);
+    }
+}
+
 
 void socket_task(__unused void *params) {
 	
@@ -469,8 +579,9 @@ void main_task(__unused void *params) {
         printf("Connected.\n");
     }
     xTaskCreate(watchdog_task, "WatchdogThread", configMINIMAL_STACK_SIZE, NULL, WATCHDOG_TASK_PRIORITY, NULL);
-    xTaskCreate(socket_task, "SOCKETThread", configMINIMAL_STACK_SIZE, NULL, SOCKET_TASK_PRIORITY, NULL);
     xTaskCreate(blink_task, "BlinkThread", configMINIMAL_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
+    xTaskCreate(socket_task, "SOCKETThread", configMINIMAL_STACK_SIZE, NULL, SOCKET_TASK_PRIORITY, NULL);
+    //xTaskCreate(mqtt_task, "MQTTThread", configMINIMAL_STACK_SIZE, NULL, MQTT_TASK_PRIORITY, NULL);
     xTaskCreate(adc_task, "ADCThread", configMINIMAL_STACK_SIZE, NULL, ADC_TASK_PRIORITY, NULL);
     xTaskCreate(batt_task, "BATTThread", configMINIMAL_STACK_SIZE, NULL, BATT_TASK_PRIORITY, NULL);
 
@@ -523,6 +634,45 @@ static void ntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *a
 }
 
 
+void
+mqtt_example_init(void)
+{
+#if LWIP_TCP
+  cyw43_arch_lwip_begin();
+  mqtt_client = mqtt_client_new();
+  //printf("mqtt_client 0x%x &mqtt_client 0x%x \n", mqtt_client,&mqtt_client);	
+   
+  //printf("mqtt_client 0x%x mqtt_client 0x%x \n", mqtt_client,mqtt_client);
+  mqtt_set_inpub_callback(mqtt_client,
+          mqtt_incoming_publish_cb,
+          mqtt_incoming_data_cb,
+          LWIP_CONST_CAST(void*, &mqtt_client_info));
+  //printf("mqtt_set_inpub_callback 0x%x\n",mqtt_set_inpub_callback);
+  
+
+  mqtt_connected = mqtt_client_connect(mqtt_client,
+          &mqtt_ip, mqtt_port,
+          mqtt_connection_cb, LWIP_CONST_CAST(void*, &mqtt_client_info),
+          &mqtt_client_info);
+  cyw43_arch_lwip_end();
+  //printf("mqtt_client_connect 0x%x\n",mqtt_client_connect);
+
+ 
+  //printf("0x%x \n",LWIP_CONST_CAST(void*, &mqtt_client_info));
+/*
+  strcpy(PUB_PAYLOAD_SCR,PUB_PAYLOAD);
+  strcat( PUB_PAYLOAD_SCR,CYW43_HOST_NAME);
+  payload_size = sizeof(PUB_PAYLOAD_SCR) + 7;
+  printf("%s  %d \n",PUB_PAYLOAD_SCR,sizeof(PUB_PAYLOAD_SCR));
+  mqtt_publish(mqtt_client,"pico/status",PUB_PAYLOAD_SCR,payload_size,2,0,pub_mqtt_request_cb_t,PUB_EXTRA_ARG);
+*/   
+          
+#endif /* LWIP_TCP */
+}
+
+void mqtt_connection_lost(void) {
+    if (check_mqtt_connected==0) printf("mqtt_connection_lost\n");
+}
 
 int main( void )
 {
