@@ -1,0 +1,55 @@
+Welcome to minicom 2.8
+
+OPTIONS: I18n 
+Port /dev/ttyUSB0, 04:00:25
+
+Press CTRL-A Z for help on special keys
+
+0x20021f60 0x20021f60 0x2002215f 0x20021f60 
+Starting FreeRTOS on core 0:
+0x20021f60 0x20021f60 0x2002215f 0x20021f60 
+Starting FreeRTOS on core 0: ver 0.0.11 remote1 
+Connecting to Wi-Fi...
+Connected.
+0x20021f90 0x20021f60 0x2002215f 0x20021f60 
+Connected. iperf server 192.168.1.176 4001  
+0x20021fbc 0x20021f60 0x2002215f 0x20021f60 
+mqtt_ip = 0xe601a8c0 mqtt_port = 1883  
+MQTT client "remote1" connection cb: status 0
+MQTT client "remote1" request cb: err 0
+MQTT client "remote1" request cb: err 0
+Starting server at 192.168.1.176 on port 4001
+open_task starts
+open_task open_flg 0                                                            
+close_task starts                                                               
+close_task close_flg 0                                                          
+0x20021fe3 0x20021f60 0x2002215f 0xntp address 172.234.37.140                   
+got ntp response: 19/04/2025 11:33:04                                           
+0x20021f60 0x20021f60 0x2002215f 0x20021f60                                     
+Starting FreeRTOS on core 0:                                                    
+0x20021f60 0x20021f60 0x2002215f 0x20021f60                                     
+Starting FreeRTOS on core 0: ver 0.0.11 remote1                                 
+Connecting to Wi-Fi...                                                          
+Connected.                                                                      
+0x20021f90 0x20021f60 0x2002215f 0x20021f60                                     
+Connected. iperf server 192.168.1.176 4001                                      
+0x20021fbc 0x20021f60 0x2002215f 0x20021f60                                     
+mqtt_ip = 0xe601a8c0 mqtt_port = 1883                                           
+MQTT client "remote1" connection cb: status 0                                   
+MQTT client "remote1" request cb: err 0                                         
+MQTT client "remote1" request cb: err 0                                         
+Starting server at 192.168.1.176 on port 4001                                   
+open_task starts                                                                
+open_task open_flg 0                                                            
+close_task starts                                                               
+close_task close_flg 0                                                          
+ntp address 137.190.2.4                                                         
+0x20021fe3 0x20021f60 0x2002215f 0x20021f60                                     
+batt task 0x046 -> 0.056396 V                                                   
+got ntp response: 19/04/2025 11:33:12                                           
+0x20022000 0x20021f60 0x2002215f 0x20021f60                                     
+ 19/04/2025 11:33:12                                                            
+open_task open_flg 0                                                            
+close_task close_flg 0                                                          
+CTRL-A Z for help | 115200 8N1 | NOR | Minicom 2.8 | VT102 | Offline | ttyUSB0 
+
