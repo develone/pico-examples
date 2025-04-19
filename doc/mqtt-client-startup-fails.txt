@@ -1,0 +1,15 @@
+Starting FreeRTOS SMP on both cores:                                            
+Connecting to Wi-Fi...                                                          
+Connected.                                                                      
+watchdog_task starts                                                            
+blink_task starts                                                               
+batt_task starts                                                                
+adc_task starts                                                                 
+socket_task starts                                                              
+0x200018f8 0x200018f8 0x20001af7 0x200018f8                                     
+batt task 0x000 -> 0.000000 V                                                   
+Starting server at 192.168.1.128 on port 4001                                   
+                                                                                
+*** PANIC ***                                                                   
+                                                                                
+mqtt_sub_unsub: client != NULL
