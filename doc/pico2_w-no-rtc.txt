@@ -1,0 +1,56 @@
+https://forums.raspberrypi.com/viewtopic.php?t=380678
+hello_rtc example doesn't compile on Pico 2 W
+
+    Quote
+
+Sun Dec 08, 2024 3:55 pm
+I would like to run the hello_rtc example on Pico 2 W.
+
+I am using Visual Studio code (1.95.3) and Raspberry Pi Pico extension (0.17.2) and I have updated the CMakeLists.txt as follows
+
+
+Re: hello_rtc example doesn't compile on Pico 2 W
+
+    Quote
+
+Sun Dec 08, 2024 9:54 pm
+RTC was replaced with "POWMAN timer" on RP2350 (See https://www.raspberrypi.com/documentati ... are_powman)
+
+There is a common API for RTC and POWMAN timer (though beware use of time conversion functions) here: https://www.raspberrypi.com/documentati ... _aon_timer (although there were a lot of new APIs added in 2.1.0 and the online docs still seem to be for 2.0.0, so you may want to look at the header)
+
+https://www.raspberrypi.com/documentation/pico-sdk/high_level.html#group_pico_aon_timer
+
+pico_aon_timer
+
+High Level "Always on Timer" Abstraction.
+Detailed Description
+
+This library uses the RTC on RP2040. This library uses the Powman Timer on RP2350.
+
+This library supports both aon_timer_xxx_calendar() methods which use a calendar date/time (as struct tm), and aon_timer_xxx() methods which use a linear time value relative an internal reference time (via struct timespec).
+
+On RP2040 the non 'calendar date/time' methods must convert the linear time value to a calendar date/time internally; these methods are:
+
+    aon_timer_start_with_timeofday
+
+    aon_timer_start
+
+    aon_timer_set_time
+
+    aon_timer_get_time
+
+    aon_timer_enable_alarm
+
+This conversion is handled by the pico_localtime_r method. By default, this pulls in the C library local_time_r method which can lead to a big increase in binary size. The default implementation of pico_localtime_r is weak, so it can be overridden if a better/smaller alternative is available, otherwise you might consider the method variants ending in _calendar() instead on RP2040.
+
+On RP2350 the 'calendar date/time' methods must convert the calendar date/time to a linear time value internally; these methods are:
+
+    aon_timer_start_calendar
+
+    aon_timer_set_time_calendar
+
+    aon_timer_get_time_calendar
+
+    aon_timer_enable_alarm_calendar
+
+This conversion is handled by the pico_mktime method. By default, this pulls in the C library mktime method which can lead to a big increase in binary size. The default implementation of pico_mktime is weak, so it can be overridden if a better/smaller alternative is available, otherwise you might consider the method variants not ending in _calendar() instead on RP2350.
