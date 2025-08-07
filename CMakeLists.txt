@@ -9,8 +9,8 @@ project(pico_examples C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-if (PICO_SDK_VERSION_STRING VERSION_LESS "2.1.0")
-    message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.1.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+if (PICO_SDK_VERSION_STRING VERSION_LESS "2.2.0")
+    message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.2.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
@@ -18,6 +18,11 @@ set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
 # If you want debug output from USB (pass -DPICO_STDIO_USB=1) this ensures you don't lose any debug output while USB is set up
 if (NOT DEFINED PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
     set(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS 3000)
+endif()
+
+# Allow using the example keys, as this is the examples repository
+if (NOT DEFINED PICO_ALLOW_EXAMPLE_KEYS)
+    set(PICO_ALLOW_EXAMPLE_KEYS 1)
 endif()
 
 # Initialize the SDK
@@ -66,6 +71,7 @@ add_subdirectory(cmake)
 add_subdirectory(dcp)
 add_subdirectory(divider)
 add_subdirectory(dma)
+add_subdirectory(encrypted)
 add_subdirectory(flash)
 add_subdirectory(gpio)
 add_subdirectory(hstx)
@@ -80,6 +86,7 @@ add_subdirectory(pwm)
 add_subdirectory(reset)
 add_subdirectory(rtc)
 add_subdirectory(spi)
+add_subdirectory(status_led)
 add_subdirectory(system)
 add_subdirectory(timer)
 add_subdirectory(uart)

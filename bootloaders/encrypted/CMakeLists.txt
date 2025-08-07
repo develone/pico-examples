@@ -1,25 +1,16 @@
 # Encrypted Bootloader
 add_executable(enc_bootloader
         enc_bootloader.c
-        aes.S
+        mbedtls_aes.c
         )
 
-# Add command to update otp.json if privateaes.bin changes
-add_custom_command(OUTPUT ${CMAKE_CURRENT_LIST_DIR}/otp.json
-    COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_LIST_DIR}/update-key.cmake"
-    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/privateaes.bin)
-# Copy that otp.json file to build directory
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/otp.json
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_LIST_DIR}/otp.json" "${CMAKE_CURRENT_BINARY_DIR}/otp.json"
-    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/otp.json)
-add_custom_target(otp_json DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/otp.json)
-add_dependencies(enc_bootloader otp_json)
-
 # pull in common dependencies
-target_link_libraries(enc_bootloader pico_stdlib pico_rand)
+target_link_libraries(enc_bootloader pico_stdlib pico_rand pico_mbedtls)
 
 # use stack guards, as AES variables are written near the stack
 target_compile_definitions(enc_bootloader PRIVATE PICO_USE_STACK_GUARDS=1)
+
+target_include_directories(enc_bootloader PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 # set as no_flash binary
 pico_set_binary_type(enc_bootloader no_flash)
@@ -49,9 +40,6 @@ endfunction()
 # create linker script to run from 0x20070000
 add_linker_script(enc_bootloader "0x20070000" "64k")
 
-# configure otp output
-pico_set_otp_key_output_file(enc_bootloader ${CMAKE_CURRENT_BINARY_DIR}/otp.json)
-
 # sign, hash, and clear SRAM
 pico_sign_binary(enc_bootloader ${CMAKE_CURRENT_LIST_DIR}/private.pem)
 pico_hash_binary(enc_bootloader)
@@ -62,7 +50,10 @@ pico_embed_pt_in_binary(enc_bootloader ${CMAKE_CURRENT_LIST_DIR}/enc-pt.json)
 
 # create absolute uf2, and package in flash
 pico_set_uf2_family(enc_bootloader "absolute")
-pico_package_uf2_output(enc_bootloader 0x10000000)
+pico_package_uf2_output(enc_bootloader)
+
+# optionally enable USB output in addition to UART
+# pico_enable_stdio_usb(enc_bootloader 1)
 
 # create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(enc_bootloader)
@@ -86,13 +77,19 @@ pico_set_binary_type(hello_serial_enc no_flash)
 # create linker script to ensure it doesn't overwrite the bootloader at 0x20070000
 add_linker_script(hello_serial_enc "0x20000000" "448k")
 
+# configure otp output
+pico_set_otp_key_output_file(hello_serial_enc ${CMAKE_CURRENT_BINARY_DIR}/otp.json)
+
 # sign, hash, and encrypt
 pico_sign_binary(hello_serial_enc ${CMAKE_CURRENT_LIST_DIR}/private.pem)
 pico_hash_binary(hello_serial_enc)
-pico_encrypt_binary(hello_serial_enc ${CMAKE_CURRENT_LIST_DIR}/privateaes.bin)
+pico_encrypt_binary(hello_serial_enc ${CMAKE_CURRENT_LIST_DIR}/privateaes.bin ${CMAKE_CURRENT_LIST_DIR}/ivsalt.bin)
 
 # package uf2 in flash
-pico_package_uf2_output(hello_serial_enc 0x10000000)
+pico_package_uf2_output(hello_serial_enc)
+
+# optionally enable USB output in addition to UART
+# pico_enable_stdio_usb(hello_serial_enc 1)
 
 # create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(hello_serial_enc)
