@@ -1,0 +1,12 @@
+07/31/26
+master								slave
+21	red			spi0-rx		5	spi0-tx
+22	yellow	spi0-Cs		2	spi0-Cs
+23	black		grd				3	grd
+24	green		spi0-sck	4	spi0-sck
+25	orange	spi0-tx		1	spi0-rx
+					
+						FTDI	ttyUSB0
+1		red			
+2		black
+3		yellow
