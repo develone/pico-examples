@@ -1,0 +1,3 @@
+SPI master example
+SPI master says: The following buffer will be written to MOSI endlessly:
+31 32 33 34 35 36 37 38 39 d9 c6 0b 34 
