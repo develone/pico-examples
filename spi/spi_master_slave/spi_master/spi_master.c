@@ -73,6 +73,7 @@ int main() {
     // Enable UART so we can print
     stdio_init_all();
     uint32_t crc_res;
+    uint8_t out_buf[BUF_LEN], in_buf[BUF_LEN];
     // calculate and append the crc
     crc_res = soft_crc32_block(CRC32_INIT, src, DATA_TO_CHECK_LEN);
     *((uint32_t *)&src[DATA_TO_CHECK_LEN]) = crc_res;
@@ -101,7 +102,7 @@ int main() {
     // Make the SPI pins available to picotool
     bi_decl(bi_4pins_with_func(PICO_DEFAULT_SPI_RX_PIN, PICO_DEFAULT_SPI_TX_PIN, PICO_DEFAULT_SPI_SCK_PIN, PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI));
 
-    uint8_t out_buf[BUF_LEN], in_buf[BUF_LEN];
+    
    
 
 
