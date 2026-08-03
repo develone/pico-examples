@@ -27,8 +27,32 @@
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/spi.h"
+#define CRC32_INIT                  ((uint32_t)-1l)
 
-#define BUF_LEN         0x100
+#define DATA_TO_CHECK_LEN           9
+#define CRC32_LEN                   4
+#define TOTAL_LEN                   (DATA_TO_CHECK_LEN + CRC32_LEN)
+
+// commonly used crc test data and also space for the crc value
+static uint8_t src[TOTAL_LEN] = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00, 0x00, 0x00, 0x00 };
+static uint8_t dummy_dst[1];
+
+// This uses a standard polynomial with the alternate 'reversed' shift direction.
+// It is possible to use a non-reversed algorithm here but the DMA sniff set-up
+// below would need to be modified to remain consistent and allow the check to pass.
+
+static uint32_t soft_crc32_block(uint32_t crc, uint8_t *bytp, uint32_t length) {
+    while(length--) {
+        uint32_t byte32 = (uint32_t)*bytp++;
+
+        for (uint8_t bit = 8; bit; bit--, byte32 >>= 1) {
+            crc = (crc >> 1) ^ (((crc ^ byte32) & 1ul) ? 0xEDB88320ul : 0ul);
+        }
+    }
+    return crc;
+}
+
+#define BUF_LEN         0x0d
 
 void printbuf(uint8_t buf[], size_t len) {
     size_t i;
@@ -48,6 +72,19 @@ void printbuf(uint8_t buf[], size_t len) {
 int main() {
     // Enable UART so we can print
     stdio_init_all();
+    uint32_t crc_res;
+    // calculate and append the crc
+    crc_res = soft_crc32_block(CRC32_INIT, src, DATA_TO_CHECK_LEN);
+    *((uint32_t *)&src[DATA_TO_CHECK_LEN]) = crc_res;
+    printf("Buffer to DMA: ");
+    for (int i = 0; i < TOTAL_LEN; i++) {
+        printf("0x%402x ", src[i]);
+    }
+    printf("\n");
+        // Initialize output buffer
+    for (size_t i = 0; i < BUF_LEN; i++) {
+        out_buf[i] = src[i];
+    }
 #if !defined(spi_default) || !defined(PICO_DEFAULT_SPI_SCK_PIN) || !defined(PICO_DEFAULT_SPI_TX_PIN) || !defined(PICO_DEFAULT_SPI_RX_PIN) || !defined(PICO_DEFAULT_SPI_CSN_PIN)
 #warning spi/spi_master example requires a board with SPI pins
     puts("Default SPI pins were not defined");
@@ -65,16 +102,13 @@ int main() {
     bi_decl(bi_4pins_with_func(PICO_DEFAULT_SPI_RX_PIN, PICO_DEFAULT_SPI_TX_PIN, PICO_DEFAULT_SPI_SCK_PIN, PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI));
 
     uint8_t out_buf[BUF_LEN], in_buf[BUF_LEN];
+   
 
-    // Initialize output buffer
-    for (size_t i = 0; i < BUF_LEN; ++i) {
-        out_buf[i] = i;
-    }
 
     printf("SPI master says: The following buffer will be written to MOSI endlessly:\n");
     printbuf(out_buf, BUF_LEN);
 
-    for (size_t i = 0; ; ++i) {
+    for (size_t i = 0; ; i++) {
         // Write the output buffer to MOSI, and at the same time read from MISO.
         spi_write_read_blocking(spi_default, out_buf, in_buf, BUF_LEN);
 
@@ -83,7 +117,7 @@ int main() {
         printbuf(in_buf, BUF_LEN);
 
         // Sleep for ten seconds so you get a chance to read the output.
-        sleep_ms(10 * 1000);
+        sleep_ms(1 * 1000);
     }
 #endif
 }
