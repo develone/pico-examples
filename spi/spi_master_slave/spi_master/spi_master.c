@@ -56,7 +56,7 @@ static uint32_t soft_crc32_block(uint32_t crc, uint8_t *bytp, uint32_t length) {
 
 void printbuf(uint8_t buf[], size_t len) {
     size_t i;
-    for (i = 0; i < len; ++i) {
+    for (i = 0; i < TOTAL_LEN ; i++) {
         if (i % 16 == 15)
             printf("%02x\n", buf[i]);
         else
@@ -67,25 +67,24 @@ void printbuf(uint8_t buf[], size_t len) {
     if (i % 16) {
         putchar('\n');
     }
+    printf("\n");
 }
 
 int main() {
     // Enable UART so we can print
     stdio_init_all();
     uint32_t crc_res;
-    uint8_t out_buf[BUF_LEN], in_buf[BUF_LEN];
+    uint8_t out_buf[TOTAL_LEN], in_buf[TOTAL_LEN];
     // calculate and append the crc
     crc_res = soft_crc32_block(CRC32_INIT, src, DATA_TO_CHECK_LEN);
+    printf("crc_res 0x%x \n",crc_res);
     *((uint32_t *)&src[DATA_TO_CHECK_LEN]) = crc_res;
-    printf("Buffer to DMA: ");
-    for (int i = 0; i < TOTAL_LEN; i++) {
-        printf("0x%402x ", src[i]);
-    }
-    printf("\n");
-        // Initialize output buffer
-    for (size_t i = 0; i < BUF_LEN; i++) {
-        out_buf[i] = src[i];
-    }
+    
+    for (int i = 0; i < TOTAL_LEN; i++) out_buf[i] = src[i];
+
+    for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+    printf(" \n");
+
 #if !defined(spi_default) || !defined(PICO_DEFAULT_SPI_SCK_PIN) || !defined(PICO_DEFAULT_SPI_TX_PIN) || !defined(PICO_DEFAULT_SPI_RX_PIN) || !defined(PICO_DEFAULT_SPI_CSN_PIN)
 #warning spi/spi_master example requires a board with SPI pins
     puts("Default SPI pins were not defined");
@@ -93,7 +92,7 @@ int main() {
 
     printf("SPI master example\n");
 
-    // Enable SPI 0 at 1 MHz and connect to GPIOs
+    // Enable SPI 0 at 100 KHz and connect to GPIOs
     spi_init(spi_default, 1000 * 1000);
     gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
@@ -107,17 +106,28 @@ int main() {
 
 
     printf("SPI master says: The following buffer will be written to MOSI endlessly:\n");
-    printbuf(out_buf, BUF_LEN);
+    printf("commonly used crc test data and also space for the crc value \n");
+    //printbuf(out_buf, BUF_LEN);
+    for (int i = 0; i < TOTAL_LEN; i++) out_buf[i] = src[i];
 
-    for (size_t i = 0; ; i++) {
+    for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+    printf(" \n");
+
+    int flag = 1;
+    while(flag)
+    {
+    //for (size_t i = 0; ; ++i) {
         // Write the output buffer to MOSI, and at the same time read from MISO.
-        spi_write_read_blocking(spi_default, out_buf, in_buf, BUF_LEN);
-
+        
+        
+        spi_write_read_blocking(spi_default, out_buf, in_buf, TOTAL_LEN);
+        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",in_buf[i]);
+        printf(" \n");
         // Write to stdio whatever came in on the MISO line.
-        printf("SPI master says: read page %d from the MISO line:\n", i);
-        printbuf(in_buf, BUF_LEN);
+        //printf("SPI master says: read page %d from the MISO line:\n", i);
+        //printbuf(in_buf, BUF_LEN);
 
-        // Sleep for ten seconds so you get a chance to read the output.
+        // Sleep for 1 seconds so you get a chance to read the output.
         sleep_ms(1 * 1000);
     }
 #endif
