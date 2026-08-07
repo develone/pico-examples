@@ -115,11 +115,16 @@ int main() {
     {
     //for (size_t i = 0; ; ++i) {
         // Write the output buffer to MISO, and at the same time read from MOSI.
-        spi_write_read_blocking(spi_default, out_buf, in_buf, BUF_LEN);
-
+        spi_write_read_blocking(spi_default, out_buf, in_buf, TOTAL_LEN);
+        printf("out_buf\n");
+        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+        printf(" \n");
+        printf("in_buf\n");
+        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",in_buf[i]);
+        printf(" \n");
         // Write to stdio whatever came in on the MOSI line.
-        printf("SPI slave says: read page %d from the MOSI line:\n", i);
-        printbuf(in_buf, BUF_LEN);
+        //printf("SPI slave says: read page %d from the MOSI line:\n", i);
+        //printbuf(in_buf, BUF_LEN);
     }
 #endif
 }

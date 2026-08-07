@@ -121,6 +121,10 @@ int main() {
         
         
         spi_write_read_blocking(spi_default, out_buf, in_buf, TOTAL_LEN);
+        printf("out_buf\n");
+        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+        printf(" \n");
+        printf("in_buf\n");
         for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",in_buf[i]);
         printf(" \n");
         // Write to stdio whatever came in on the MISO line.
@@ -128,7 +132,7 @@ int main() {
         //printbuf(in_buf, BUF_LEN);
 
         // Sleep for 1 seconds so you get a chance to read the output.
-        sleep_ms(1 * 1000);
+        sleep_ms(10 * 1000);
     }
 #endif
 }
