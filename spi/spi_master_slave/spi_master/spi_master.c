@@ -29,9 +29,16 @@
 #include "hardware/spi.h"
 #define CRC32_INIT                  ((uint32_t)-1l)
 
+#define RH_ASK_PREAMBLE_LEN         8
 #define DATA_TO_CHECK_LEN           9
 #define CRC32_LEN                   4
 #define TOTAL_LEN                   (DATA_TO_CHECK_LEN + CRC32_LEN)
+#define T_LEN                       21
+
+// Initialise the first 8 nibbles of the tx buffer to be the standard
+// preamble. We will append messages after that. 0x38, 0x2c is the start symbol before
+// 6-bit conversion to RH_ASK_START_SYMBOL
+uint8_t preamble[RH_ASK_PREAMBLE_LEN] = {0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x38, 0x2c};
 
 // commonly used crc test data and also space for the crc value
 static uint8_t src[TOTAL_LEN] = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00, 0x00, 0x00, 0x00 };
@@ -52,7 +59,7 @@ static uint32_t soft_crc32_block(uint32_t crc, uint8_t *bytp, uint32_t length) {
     return crc;
 }
 
-#define BUF_LEN         0x0d
+#define BUF_LEN         0x15
 
 void printbuf(uint8_t buf[], size_t len) {
     size_t i;
@@ -71,18 +78,27 @@ void printbuf(uint8_t buf[], size_t len) {
 }
 
 int main() {
+    int i, j;
     // Enable UART so we can print
     stdio_init_all();
     uint32_t crc_res;
-    uint8_t out_buf[TOTAL_LEN], in_buf[TOTAL_LEN];
+    uint8_t out_buf[T_LEN], in_buf[T_LEN];
     // calculate and append the crc
     crc_res = soft_crc32_block(CRC32_INIT, src, DATA_TO_CHECK_LEN);
     printf("crc_res 0x%x \n",crc_res);
     *((uint32_t *)&src[DATA_TO_CHECK_LEN]) = crc_res;
     
-    for (int i = 0; i < TOTAL_LEN; i++) out_buf[i] = src[i];
-
-    for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+    for (i = 0; i < RH_ASK_PREAMBLE_LEN ; i++)
+    {
+        out_buf[i] = preamble[i];
+    }
+    for (i = 8; i < T_LEN ; i++)
+    {
+        j = i - 8;
+        out_buf[i] = src[j];
+    }
+    
+    for (int i = 0; i < T_LEN; i++) printf("0x%x ",out_buf[i]);
     printf(" \n");
 
 #if !defined(spi_default) || !defined(PICO_DEFAULT_SPI_SCK_PIN) || !defined(PICO_DEFAULT_SPI_TX_PIN) || !defined(PICO_DEFAULT_SPI_RX_PIN) || !defined(PICO_DEFAULT_SPI_CSN_PIN)
@@ -106,11 +122,11 @@ int main() {
 
 
     printf("SPI master says: The following buffer will be written to MOSI endlessly:\n");
-    printf("commonly used crc test data and also space for the crc value \n");
+    //printf("commonly used crc test data and also space for the crc value \n");
     //printbuf(out_buf, BUF_LEN);
-    for (int i = 0; i < TOTAL_LEN; i++) out_buf[i] = src[i];
+    //for (int i = 0; i < T_LEN; i++) out_buf[i] = src[i];
 
-    for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+    for (int i = 0; i < T_LEN; i++) printf("0x%x ",out_buf[i]);
     printf(" \n");
 
     int flag = 1;
@@ -120,12 +136,12 @@ int main() {
         // Write the output buffer to MOSI, and at the same time read from MISO.
         
         
-        spi_write_read_blocking(spi_default, out_buf, in_buf, TOTAL_LEN);
+        spi_write_read_blocking(spi_default, out_buf, in_buf, T_LEN);
         printf("out_buf\n");
-        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+        for (int i = 0; i < T_LEN; i++) printf("0x%x ",out_buf[i]);
         printf(" \n");
         printf("in_buf\n");
-        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",in_buf[i]);
+        for (int i = 0; i < T_LEN; i++) printf("0x%x ",in_buf[i]);
         printf(" \n");
         // Write to stdio whatever came in on the MISO line.
         //printf("SPI master says: read page %d from the MISO line:\n", i);

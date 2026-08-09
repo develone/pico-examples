@@ -28,10 +28,18 @@
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/spi.h"
+
+#define RH_ASK_PREAMBLE_LEN         8
 #define CRC32_INIT                  ((uint32_t)-1l)
 #define DATA_TO_CHECK_LEN           9
 #define CRC32_LEN                   4
 #define TOTAL_LEN                   (DATA_TO_CHECK_LEN + CRC32_LEN)
+#define T_LEN                       21
+
+// Initialise the first 8 nibbles of the tx buffer to be the standard
+// preamble. We will append messages after that. 0x38, 0x2c is the start symbol before
+// 6-bit conversion to RH_ASK_START_SYMBOL
+uint8_t preamble[RH_ASK_PREAMBLE_LEN] = {0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x38, 0x2c};
 
 // commonly used crc test data and also space for the crc value
 static uint8_t src[TOTAL_LEN] = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00, 0x00, 0x00, 0x00 };
@@ -68,10 +76,11 @@ void printbuf(uint8_t buf[], size_t len) {
 
 
 int main() {
+    int i, j;
     // Enable UART so we can print
     stdio_init_all();
     uint32_t crc_res;
-    uint8_t out_buf[TOTAL_LEN], in_buf[TOTAL_LEN];
+    uint8_t out_buf[T_LEN], in_buf[T_LEN];
     crc_res = soft_crc32_block(CRC32_INIT, src, DATA_TO_CHECK_LEN);
     *((uint32_t *)&src[DATA_TO_CHECK_LEN]) = crc_res;
     // calculate and append the crc
@@ -99,6 +108,19 @@ int main() {
     // Make the SPI pins available to picotool
     bi_decl(bi_4pins_with_func(PICO_DEFAULT_SPI_RX_PIN, PICO_DEFAULT_SPI_TX_PIN, PICO_DEFAULT_SPI_SCK_PIN, PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI));
 
+    for (i = 0; i < RH_ASK_PREAMBLE_LEN ; i++)
+    {
+        out_buf[i] = preamble[i];
+    }
+    for (i = 8; i < T_LEN ; i++)
+    {
+        j = i - 8;
+        out_buf[i] = src[j];
+    }
+    
+    for (int i = 0; i < T_LEN; i++) printf("0x%x ",out_buf[i]);
+    printf(" \n");
+
     
 
     // Initialize output buffer
@@ -108,19 +130,19 @@ int main() {
     //}
 
     printf("SPI slave says: When reading from MOSI, the following buffer will be written to MISO:\n");
-    printbuf(out_buf, BUF_LEN);
-    size_t i = 0;
+    //printbuf(out_buf, BUF_LEN);
+    
     int flag = 1;
     while(flag)
     {
     //for (size_t i = 0; ; ++i) {
         // Write the output buffer to MISO, and at the same time read from MOSI.
-        spi_write_read_blocking(spi_default, out_buf, in_buf, TOTAL_LEN);
+        spi_write_read_blocking(spi_default, out_buf, in_buf, T_LEN);
         printf("out_buf\n");
-        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",out_buf[i]);
+        for (int i = 0; i < T_LEN; i++) printf("0x%x ",out_buf[i]);
         printf(" \n");
         printf("in_buf\n");
-        for (int i = 0; i < TOTAL_LEN; i++) printf("0x%x ",in_buf[i]);
+        for (int i = 0; i < T_LEN; i++) printf("0x%x ",in_buf[i]);
         printf(" \n");
         // Write to stdio whatever came in on the MOSI line.
         //printf("SPI slave says: read page %d from the MOSI line:\n", i);
