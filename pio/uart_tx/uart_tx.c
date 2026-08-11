@@ -10,7 +10,7 @@
 
 // We're going to use PIO to print "Hello, world!" on the same GPIO which we
 // normally attach UART0 to.
-#define PIO_TX_PIN 0
+#define PIO_TX_PIN 14
 
 // Check the pin is compatible with the platform
 #if PIO_TX_PIN >= NUM_BANK0_GPIOS
@@ -20,7 +20,7 @@
 int main() {
     // This is the same as the default UART baud rate on Pico
     const uint SERIAL_BAUD = 115200;
-
+    const uint PIO_SERIAL_BAUD = 9600;
     PIO pio;
     uint sm;
     uint offset;
@@ -31,10 +31,10 @@ int main() {
     bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&uart_tx_program, &pio, &sm, &offset, PIO_TX_PIN, 1, true);
     hard_assert(success);
 
-    uart_tx_program_init(pio, sm, offset, PIO_TX_PIN, SERIAL_BAUD);
+    uart_tx_program_init(pio, sm, offset, PIO_TX_PIN, PIO_SERIAL_BAUD);
 
     while (true) {
-        uart_tx_program_puts(pio, sm, "Hello, world! (from PIO!)\r\n");
+        uart_tx_program_puts(pio, sm, "Hello, world! (from PIO! Pin GPIO-14 )\r\n");
         sleep_ms(1000);
     }
 
