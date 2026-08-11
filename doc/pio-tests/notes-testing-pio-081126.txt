@@ -1,0 +1,76 @@
+08/11/26
+devel@pi5-90:~ $ mkdir pio
+devel@pi5-90:~ $ cd pio/
+devel@pi5-90:~/pio $ git clone -b test-dev https://github.com/develone/pico-examples.git
+devel@pi5-90:~/pio $ cd pico-examples/
+devel@pi5-90:~/pio/pico-examples $ mkdir build-rp2040
+devel@pi5-90:~/pio/pico-examples $ mkdir build-rp2350
+devel@pi5-90:~/pio/pico-examples $ git diff compile-rp2040.sh
+diff --git a/compile-rp2040.sh b/compile-rp2040.sh
+index 8905c4d..ae7fb2e 100755
+--- a/compile-rp2040.sh
++++ b/compile-rp2040.sh
+@@ -3,5 +3,5 @@ rm -rf build-rp2040
+ mkdir build-rp2040
+ cd build-rp2040
+ cmake .. -DPICO_BOARD=pico_w -DPICO_PLATFORM=rp2040 -DWIFI_SSID="WIFI_SSID" -DWIFI_PASSWORD="WIFI_PASSWORD"
+-make
++#make
+devel@pi5-90:~/pio/pico-examples $ git diff compile-rp2350.sh
+diff --git a/compile-rp2350.sh b/compile-rp2350.sh
+index 596732e..af2b30d 100755
+--- a/compile-rp2350.sh
++++ b/compile-rp2350.sh
+@@ -3,5 +3,5 @@ rm -rf build-rp2350
+ mkdir build-rp2350
+ cd build-rp2350
+ cmake .. -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350 -DWIFI_SSID="WIFI_SSID" -DWIFI_PASSWORD="WIFI_PASSWORD"
+-make
++#make
+
+devel@pi5-90:~/pio/pico-examples $ ./compile-rp2040.sh
+devel@pi5-90:~/pio/pico-examples $ ./compile-rp2350.sh
+devel@pi5-90:~/pio/pico-examples $ cd build-rp2040/pio/uart_tx/
+devel@pi5-90:~/pio/pico-examples/build-rp2040/pio/uart_tx $ make
+devel@pi5-90:~/pio/pico-examples/build-rp2040/pio/uart_tx $ ls
+CMakeFiles  cmake_install.cmake  Makefile  pio_uart_tx.bin  pio_uart_tx.dis  pio_uart_tx.elf  pio_uart_tx.elf.map  pio_uart_tx.hex  pio_uart_tx.uf2  uart_tx.pio.h
+cd ../../../build-rp2350/pio/uart_tx/
+
+devel@pi5-90:~/pio/pico-examples/build-rp2350/pio/uart_tx $ make
+devel@pi5-90:~/pio/pico-examples/build-rp2350/pio/uart_tx $ ls
+CMakeFiles  cmake_install.cmake  Makefile  pio_uart_tx.bin  pio_uart_tx.dis  pio_uart_tx.elf  pio_uart_tx.elf.map  pio_uart_tx.hex  pio_uart_tx.uf2  uart_tx.pio.h
+devel@pi5-90:~/pio/pico-examples/build-rp2040/pio/uart_tx $ git diff ../../../pio/uart_tx/uart_tx.c
+diff --git a/pio/uart_tx/uart_tx.c b/pio/uart_tx/uart_tx.c
+index d6afa15..44181b5 100644
+--- a/pio/uart_tx/uart_tx.c
++++ b/pio/uart_tx/uart_tx.c
+@@ -10,7 +10,7 @@
+ 
+ // We're going to use PIO to print "Hello, world!" on the same GPIO which we
+ // normally attach UART0 to.
+-#define PIO_TX_PIN 0
++#define PIO_TX_PIN 14
+ 
+ // Check the pin is compatible with the platform
+ #if PIO_TX_PIN >= NUM_BANK0_GPIOS
+@@ -20,7 +20,7 @@
+ int main() {
+     // This is the same as the default UART baud rate on Pico
+     const uint SERIAL_BAUD = 115200;
+-
++    const uint PIO_SERIAL_BAUD = 9600;
+     PIO pio;
+     uint sm;
+     uint offset;
+@@ -31,10 +31,10 @@ int main() {
+     bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&uart_tx_program, &pio, &sm, &offset, PIO_TX_PIN, 1, true);
+     hard_assert(success);
+ 
+-    uart_tx_program_init(pio, sm, offset, PIO_TX_PIN, SERIAL_BAUD);
++    uart_tx_program_init(pio, sm, offset, PIO_TX_PIN, PIO_SERIAL_BAUD);
+ 
+     while (true) {
+-        uart_tx_program_puts(pio, sm, "Hello, world! (from PIO!)\r\n");
++        uart_tx_program_puts(pio, sm, "Hello, world! (from PIO! Pin GPIO-14 )\r\n");
+         sleep_ms(1000);
+     }
