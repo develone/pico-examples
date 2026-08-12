@@ -11,6 +11,7 @@
 #include "hardware/pio.h"
 #include "hardware/uart.h"
 #include "uart_rx.pio.h"
+#include "hardware/gpio.h"
 
 // This program
 // - Uses UART1 (the spare UART, by default) to transmit some text
@@ -19,7 +20,8 @@
 // This might require some reconfiguration on boards where UART1 is the
 // default UART.
 
-#define SERIAL_BAUD PICO_DEFAULT_UART_BAUD_RATE
+//#define SERIAL_BAUD PICO_DEFAULT_UART_BAUD_RATE
+#define SERIAL_BAUD 9600
 #define HARD_UART_INST uart1
 
 // You'll need a wire from GPIO4 -> GPIO3
@@ -41,6 +43,7 @@ int main() {
     // Console output (also a UART, yes it's confusing)
     setup_default_uart();
     printf("Starting PIO UART RX example\n");
+    bool invert = false;
 
     // Set up the hard UART we're going to use to print characters
     uart_init(HARD_UART_INST, SERIAL_BAUD);
@@ -67,10 +70,17 @@ int main() {
 
     // Echo characters received from PIO to the console
     while (true) {
+	if ( invert == false) 
+        {
+	    // Invert the input logic hardware-wide (if using as an input)
+            gpio_set_inover(PIO_RX_PIN, GPIO_OVERRIDE_INVERT);
+    
+	    invert = true;
+	}
         char c = uart_rx_program_getc(pio, sm);
         putchar(c);
     }
 
     // This will free resources and unload our program
-    pio_remove_program_and_unclaim_sm(&uart_rx_program, pio, sm, offset);
+    //pio_remove_program_and_unclaim_sm(&uart_rx_program, pio, sm, offset);
 }

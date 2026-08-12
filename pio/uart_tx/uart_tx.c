@@ -7,6 +7,7 @@
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
 #include "uart_tx.pio.h"
+#include "hardware/gpio.h"
 
 // We're going to use PIO to print "Hello, world!" on the same GPIO which we
 // normally attach UART0 to.
@@ -17,10 +18,12 @@
 #error Attempting to use a pin>=32 on a platform that does not support it
 #endif
 
+
 int main() {
     // This is the same as the default UART baud rate on Pico
-    const uint SERIAL_BAUD = 115200;
+    //const uint SERIAL_BAUD = 115200;
     const uint PIO_SERIAL_BAUD = 9600;
+    bool invert = false;
     PIO pio;
     uint sm;
     uint offset;
@@ -34,6 +37,13 @@ int main() {
     uart_tx_program_init(pio, sm, offset, PIO_TX_PIN, PIO_SERIAL_BAUD);
 
     while (true) {
+	if ( invert == false) 
+        {
+	    // Invert the output logic hardware-wide
+            gpio_set_outover(PIO_TX_PIN, GPIO_OVERRIDE_INVERT);
+    
+	    invert = true;
+	}
         uart_tx_program_puts(pio, sm, "Hello, world! (from PIO! Pin GPIO-14 )\r\n");
         sleep_ms(1000);
     }
