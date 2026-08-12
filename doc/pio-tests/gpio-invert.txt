@@ -1,0 +1,31 @@
+This might be needed.  08/11/26
+You can invert the hardware logic of a Raspberry Pi Pico (RP2040) GPIO pin without 
+adding external components by using internal hardware overrides. This feature alters 
+the polarity directly at the chip's pads, applying to standard SIO functions, 
+UART, SPI, and PIO modules
+
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
+
+int main() {
+    stdio_init_all();
+
+    const uint GPIO_PIN = 15;
+    gpio_init(GPIO_PIN);
+    gpio_set_dir(GPIO_PIN, GPIO_OUT);
+
+    // Invert the output logic hardware-wide
+    gpio_set_outover(GPIO_PIN, GPIO_OVERRIDE_INVERT);
+
+    // Invert the input logic hardware-wide (if using as an input)
+    // gpio_set_inover(GPIO_PIN, GPIO_OVERRIDE_INVERT);
+
+    while (true) {
+        gpio_put(GPIO_PIN, 1); // Hardware will physically output 0V (LOW)
+        sleep_ms(500);
+        gpio_put(GPIO_PIN, 0); // Hardware will physically output 3.3V (HIGH)
+        sleep_ms(500);
+    }
+}
+
+https://www.picotech.com/library/knowledge-bases/oscilloscopes/rs-232-serial-protocol-decoding
