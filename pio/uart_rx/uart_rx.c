@@ -21,7 +21,9 @@
 // default UART.
 
 //#define SERIAL_BAUD PICO_DEFAULT_UART_BAUD_RATE
-#define SERIAL_BAUD 9600
+#define SERIAL_BAUD 2400
+#define PIO_SERIAL_BAUD 2400
+
 #define HARD_UART_INST uart1
 
 // You'll need a wire from GPIO4 -> GPIO3
@@ -46,7 +48,7 @@ int main() {
     bool invert = true;
 
     // Set up the hard UART we're going to use to print characters
-    uart_init(HARD_UART_INST, SERIAL_BAUD);
+    uart_init(HARD_UART_INST, PIO_SERIAL_BAUD);
     gpio_set_function(HARD_UART_TX_PIN, GPIO_FUNC_UART);
 
     // Set up the state machine we're going to use to receive them.
