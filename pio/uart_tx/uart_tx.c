@@ -23,7 +23,7 @@ int main() {
     // This is the same as the default UART baud rate on Pico
     //const uint SERIAL_BAUD = 115200;
     const uint PIO_SERIAL_BAUD = 9600;
-    bool invert = false;
+    bool invert = true;
     PIO pio;
     uint sm;
     uint offset;

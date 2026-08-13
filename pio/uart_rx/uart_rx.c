@@ -43,7 +43,7 @@ int main() {
     // Console output (also a UART, yes it's confusing)
     setup_default_uart();
     printf("Starting PIO UART RX example\n");
-    bool invert = false;
+    bool invert = true;
 
     // Set up the hard UART we're going to use to print characters
     uart_init(HARD_UART_INST, SERIAL_BAUD);
