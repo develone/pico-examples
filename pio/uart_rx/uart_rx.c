@@ -12,7 +12,9 @@
 #include "hardware/uart.h"
 #include "uart_rx.pio.h"
 #include "hardware/gpio.h"
-
+#define DATA_TO_CHECK_LEN           9
+#define CRC32_LEN                   4
+#define TOTAL_LEN                   (DATA_TO_CHECK_LEN + CRC32_LEN)
 // This program
 // - Uses UART1 (the spare UART, by default) to transmit some text
 // - Uses a PIO state machine to receive that text
@@ -46,7 +48,8 @@ int main() {
     setup_default_uart();
     printf("Starting PIO UART RX example\n");
     bool invert = true;
-
+    int i,j;
+    char c;
     // Set up the hard UART we're going to use to print characters
     uart_init(HARD_UART_INST, PIO_SERIAL_BAUD);
     gpio_set_function(HARD_UART_TX_PIN, GPIO_FUNC_UART);
@@ -79,8 +82,17 @@ int main() {
     
 	    invert = true;
 	}
-        char c = uart_rx_program_getc(pio, sm);
-        putchar(c);
+	
+        while (c = uart_rx_program_getc(pio, sm) != 0x2c)
+	{
+	}
+	i = TOTAL_LEN;
+	while(i > 0)
+	{
+	    c = uart_rx_program_getc(pio, sm);
+	    putchar(c);
+	    i--;
+	}
     }
 
     // This will free resources and unload our program

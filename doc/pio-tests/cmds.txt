@@ -1,0 +1,18 @@
+08/17/26
+cp ../../../pio/uart_rx/uart_rx.c.tst2 ../../../pio/uart_rx/uart_rx.c
+
+cp ../../../pio/uart_tx/uart_tx.c.tst2 ../../../pio/uart_tx/uart_tx.c 
+
+make clean; make
+
+scp pio_uart_rx.uf2 pi4-60:/media/devel/RP2350/
+
+scp pio_uart_tx.uf2 pi5-70:/media/devel/RPI-RP2/
+
+git diff ../../../pio/uart_tx/uart_tx.c
+
+git diff ../../../pio/uart_rx/uart_rx.c
+
+gitk &
+
+
