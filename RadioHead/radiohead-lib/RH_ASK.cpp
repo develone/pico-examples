@@ -5,7 +5,7 @@
 
 #include <RH_ASK.h>
 #include <RHCRC.h>
-
+#include <cstdint>
 #ifndef __SAMD51__
 
 #if (RH_PLATFORM == RH_PLATFORM_STM32)

@@ -7,7 +7,7 @@
 #define RHGenericDriver_h
 
 #include <RadioHead.h>
-
+#include <cstdint>
 // Defines bits of the FLAGS header reserved for use by the RadioHead library and 
 // the flags available for use by applications
 #define RH_FLAGS_RESERVED                 0xf0
