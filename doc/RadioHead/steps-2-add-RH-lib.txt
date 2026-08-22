@@ -1,0 +1,104 @@
+08/22/26
+Starting with 
+library.properties  RH_ASK.cpp  RHCRC.cpp  RHGenericDriver.cpp
+RadioHead.h         RH_ASK.h    RHCRC.h    RHGenericDriver.h
+RHCRC.h needed two header files
+<cstring.h> & <cstdint>
+RH_ASK.cpp RH_ASK.h RHCRC.cpp RHGenericDriver.cpp RHGenericDriver.h needed one header file
+<cstdint>
+RadioHead/CMakeLists.txt 
+add_library(radiohead INTERFACE)
+target_include_directories(radiohead INTERFACE ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib)
+target_sources(radiohead INTERFACE
+    
+
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RH_ASK.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RH_ASK.h
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RHCRC.h
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RHCRC.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RHGenericDriver.h
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RHGenericDriver.cpp    
+    
+
+    ${CMAKE_CURRENT_LIST_DIR}/radiohead-lib/RadioHead.h
+    
+ 
+        
+
+)
+
+devel@pi5-90:~/pio/pico2/pico-examples $ git diff CMakeLists.txt
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 29801c2..9cdae1a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -64,7 +64,7 @@ endif()
+ 
+ # Hardware-specific examples in subdirectories:
+ add_subdirectory(cpp)
+-#add_subdirectory(RadioHead)
++add_subdirectory(RadioHead)
+ add_subdirectory(adc)
+ add_subdirectory(binary_info)
+ add_subdirectory(bootloaders)
+
+devel@pi5-90:~/pio/pico2/pico-examples/build-rp2350/pio/uart_rx $ git diff ../../../pio/uart_rx/CMakeLists.txt
+diff --git a/pio/uart_rx/CMakeLists.txt b/pio/uart_rx/CMakeLists.txt
+index 5f985e1..e001789 100644
+--- a/pio/uart_rx/CMakeLists.txt
++++ b/pio/uart_rx/CMakeLists.txt
+@@ -24,6 +24,7 @@ target_link_libraries(pio_uart_rx_intr PRIVATE
+         pico_multicore
+         hardware_pio
+         pico_async_context_threadsafe_background
++        radiohead
+         )
+ pico_add_extra_outputs(pio_uart_rx_intr)
+ example_auto_set_url(pio_uart_rx_intr)
+[100%] Building CXX object pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/__/__/RadioHead/radiohead-lib/RH_ASK.cpp.o
+In file included from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RHGenericDriver.h:9,
+                 from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.h:9,
+                 from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:6:
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RadioHead.h:1646:4: error: #error Platform not defined!
+ 1646 |   #error Platform not defined!
+      |    ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RadioHead.h:1872:3: error: #error Platform unknown!
+ 1872 |  #error Platform unknown!
+      |   ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'virtual bool RH_ASK::init()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:110:21: error: 'OUTPUT' was not declared in this scope
+  110 |     pinMode(_txPin, OUTPUT);
+      |                     ^~~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:110:5: error: 'pinMode' was not declared in this scope
+  110 |     pinMode(_txPin, OUTPUT);
+      |     ^~~~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:111:21: error: 'INPUT' was not declared in this scope
+  111 |     pinMode(_rxPin, INPUT);
+      |                     ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeIdle()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:597:18: error: 'LOW' was not declared in this scope
+  597 |         writePtt(LOW);
+      |                  ^~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeRx()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:608:18: error: 'LOW' was not declared in this scope
+  608 |         writePtt(LOW);
+      |                  ^~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeTx()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:624:18: error: 'HIGH' was not declared in this scope
+  624 |         writePtt(HIGH);
+      |                  ^~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'bool RH_ASK::readRx()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:734:13: error: 'digitalRead' was not declared in this scope
+  734 |     value = digitalRead(_rxPin);
+      |             ^~~~~~~~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::writeTx(bool)':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:748:5: error: 'digitalWrite' was not declared in this scope
+  748 |     digitalWrite(_txPin, value);
+      |     ^~~~~~~~~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::writePtt(bool)':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:765:5: error: 'digitalWrite' was not declared in this scope
+  765 |     digitalWrite(_pttPin, value ^ _pttInverted);
+      |     ^~~~~~~~~~~~
+make[2]: *** [pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/build.make:920: pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/__/__/RadioHead/radiohead-lib/RH_ASK.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:12508: pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
