@@ -1,3 +1,12 @@
+what are arduino digitalwrite and digitalread in pico-sdk
+
+Native Pico SDK EquivalentsdigitalWrite(pin, value) → gpio_put(pin, 
+value)Sets a GPIO pin high (1 / true) or low (0 / false).
+
+Comparison of FunctionsOperationArduino FrameworkNative Raspberry Pi Pico SDK
+Initialize PinpinMode(pin, OUTPUT);gpio_init(pin); gpio_set_dir(pin, GPIO_OUT);
+Write OutputdigitalWrite(pin, HIGH);gpio_put(pin, 1);
+Read Inputval = digitalRead(pin);val = gpio_get(pin);
 08/22/26
 Starting with 
 library.properties  RH_ASK.cpp  RHCRC.cpp  RHGenericDriver.cpp
