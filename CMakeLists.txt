@@ -63,6 +63,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 # Hardware-specific examples in subdirectories:
+add_subdirectory(cpp)
+#add_subdirectory(RadioHead)
 add_subdirectory(adc)
 add_subdirectory(binary_info)
 add_subdirectory(bootloaders)
