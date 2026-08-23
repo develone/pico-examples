@@ -1,0 +1,87 @@
+diff --git a/RadioHead/radiohead-lib/RH_ASK.cpp b/RadioHead/radiohead-lib/RH_ASK.cpp
+index 91ce8af..a1c4ca5 100755
+--- a/RadioHead/radiohead-lib/RH_ASK.cpp
++++ b/RadioHead/radiohead-lib/RH_ASK.cpp
+@@ -6,6 +6,7 @@
+ #include <RH_ASK.h>
+ #include <RHCRC.h>
+ #include <cstdint>
++#include "hardware/gpio.h"
+ #ifndef __SAMD51__
+ 
+ #if (RH_PLATFORM == RH_PLATFORM_STM32)
+@@ -107,9 +108,12 @@ bool RH_ASK::init()
+  #endif
+ #else
+     // Set up digital IO pins for arduino
+-    pinMode(_txPin, OUTPUT);
+-    pinMode(_rxPin, INPUT);
+-    pinMode(_pttPin, OUTPUT);
++    //pinMode(_txPin, OUTPUT);
++    gpio_set_dir(_txPin, GPIO_OUT);
++    //pinMode(_rxPin, INPUT);
++    gpio_set_dir(_rxPin, INPUT);
++    //pinMode(_pttPin, OUTPUT);
++    gpio_set_dir(_pttPin, GPIO_OUT);
+ #endif
+ 
+     // Ready to go
+@@ -731,7 +735,8 @@ bool RH_INTERRUPT_ATTR RH_ASK::readRx()
+ #if (RH_PLATFORM == RH_PLATFORM_GENERIC_AVR8)
+     value = ((RH_ASK_RX_PORT & (1<<RH_ASK_RX_PIN)) ? 1 : 0);
+ #else
+-    value = digitalRead(_rxPin);
++    //value = digitalRead(_rxPin);
++    value = gpio_get(_rxPin);
+ #endif
+     return value ^ _rxInverted;
+ }
+@@ -745,7 +750,8 @@ void RH_INTERRUPT_ATTR RH_ASK::writeTx(bool value)
+ //#elif (RH_PLATFORM == RH_PLATFORM_ATTINY_MEGA)
+ //    digitalWrite(_txPin, (PinStatus)value);
+ #else
+-    digitalWrite(_txPin, value);
++    //digitalWrite(_txPin, value);
++    gpio_put(_txPin, value);
+ #endif
+ }
+ 
+@@ -762,7 +768,8 @@ void RH_INTERRUPT_ATTR RH_ASK::writePtt(bool value)
+ //#elif (RH_PLATFORM == RH_PLATFORM_ATTINY_MEGA)
+ //    digitalWrite(_txPin, (PinStatus)(value ^ _pttInverted));
+ #else
+-    digitalWrite(_pttPin, value ^ _pttInverted);
++    //digitalWrite(_pttPin, value ^ _pttInverted);
++    gpio_put(_pttPin, value ^ _pttInverted);
+ #endif
+ }
+ 
+[100%] Building CXX object pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/__/__/RadioHead/radiohead-lib/RH_ASK.cpp.o
+In file included from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RHGenericDriver.h:9,
+                 from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.h:9,
+                 from /home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:6:
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RadioHead.h:1646:4: error: #error Platform not defined!
+ 1646 |   #error Platform not defined!
+      |    ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RadioHead.h:1872:3: error: #error Platform unknown!
+ 1872 |  #error Platform unknown!
+      |   ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'virtual bool RH_ASK::init()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:114:26: error: 'INPUT' was not declared in this scope
+  114 |     gpio_set_dir(_rxPin, INPUT);
+      |                          ^~~~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeIdle()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:601:18: error: 'LOW' was not declared in this scope
+  601 |         writePtt(LOW);
+      |                  ^~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeRx()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:612:18: error: 'LOW' was not declared in this scope
+  612 |         writePtt(LOW);
+      |                  ^~~
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp: In member function 'void RH_ASK::setModeTx()':
+/home/devel/pio/pico2/pico-examples/RadioHead/radiohead-lib/RH_ASK.cpp:628:18: error: 'HIGH' was not declared in this scope
+  628 |         writePtt(HIGH);
+      |                  ^~~~
+make[2]: *** [pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/build.make:920: pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/__/__/RadioHead/radiohead-lib/RH_ASK.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:12508: pio/uart_rx/CMakeFiles/pio_uart_rx_intr.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
