@@ -6,6 +6,7 @@
 #include <RH_ASK.h>
 #include <RHCRC.h>
 #include <cstdint>
+#include "hardware/gpio.h"
 #ifndef __SAMD51__
 
 #if (RH_PLATFORM == RH_PLATFORM_STM32)
@@ -107,9 +108,12 @@ bool RH_ASK::init()
  #endif
 #else
     // Set up digital IO pins for arduino
-    pinMode(_txPin, OUTPUT);
-    pinMode(_rxPin, INPUT);
-    pinMode(_pttPin, OUTPUT);
+    //pinMode(_txPin, OUTPUT);
+    gpio_set_dir(_txPin, GPIO_OUT);
+    //pinMode(_rxPin, INPUT);
+    gpio_set_dir(_rxPin, INPUT);
+    //pinMode(_pttPin, OUTPUT);
+    gpio_set_dir(_pttPin, GPIO_OUT);
 #endif
 
     // Ready to go
@@ -731,7 +735,8 @@ bool RH_INTERRUPT_ATTR RH_ASK::readRx()
 #if (RH_PLATFORM == RH_PLATFORM_GENERIC_AVR8)
     value = ((RH_ASK_RX_PORT & (1<<RH_ASK_RX_PIN)) ? 1 : 0);
 #else
-    value = digitalRead(_rxPin);
+    //value = digitalRead(_rxPin);
+    value = gpio_get(_rxPin);
 #endif
     return value ^ _rxInverted;
 }
@@ -745,7 +750,8 @@ void RH_INTERRUPT_ATTR RH_ASK::writeTx(bool value)
 //#elif (RH_PLATFORM == RH_PLATFORM_ATTINY_MEGA)
 //    digitalWrite(_txPin, (PinStatus)value);
 #else
-    digitalWrite(_txPin, value);
+    //digitalWrite(_txPin, value);
+    gpio_put(_txPin, value);
 #endif
 }
 
@@ -762,7 +768,8 @@ void RH_INTERRUPT_ATTR RH_ASK::writePtt(bool value)
 //#elif (RH_PLATFORM == RH_PLATFORM_ATTINY_MEGA)
 //    digitalWrite(_txPin, (PinStatus)(value ^ _pttInverted));
 #else
-    digitalWrite(_pttPin, value ^ _pttInverted);
+    //digitalWrite(_pttPin, value ^ _pttInverted);
+    gpio_put(_pttPin, value ^ _pttInverted);
 #endif
 }
 
