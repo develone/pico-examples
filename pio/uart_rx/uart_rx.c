@@ -12,9 +12,56 @@
 #include "hardware/uart.h"
 #include "uart_rx.pio.h"
 #include "hardware/gpio.h"
+#include <stdint.h>
+#define CRC32_INIT                  ((uint32_t)-1l) 
 #define DATA_TO_CHECK_LEN           9
 #define CRC32_LEN                   4
 #define TOTAL_LEN                   (DATA_TO_CHECK_LEN + CRC32_LEN)
+static uint8_t src[TOTAL_LEN] = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00, 0x00, 0x00, 0x00 };
+uint16_t crchirec;
+uint16_t crclorec;
+uint32_t crc_res;
+uint32_t crc_res_sav;
+char c;
+int i,j;
+static uint8_t src1[TOTAL_LEN] = { 0x39, 0x38, 0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x00, 0x00 };
+static uint8_t srcR[TOTAL_LEN];
+// This uses a standard polynomial with the alternate 'reversed' shift direction.
+// It is possible to use a non-reversed algorithm here but the DMA sniff set-up
+// below would need to be modified to remain consistent and allow the check to pass.
+
+static uint32_t soft_crc32_block(uint32_t crc, uint8_t *bytp, uint32_t length) {
+    while(length--) {
+        uint32_t byte32 = (uint32_t)*bytp++;
+
+        for (uint8_t bit = 8; bit; bit--, byte32 >>= 1) {
+            crc = (crc >> 1) ^ (((crc ^ byte32) & 1ul) ? 0xEDB88320ul : 0ul);
+        }
+    }
+    return crc;
+}
+#include <stdint.h>
+
+uint16_t swap_uint16(uint16_t val) {
+    return (val << 8) | (val >> 8);
+}
+void ck_crc(void)
+{
+    crc_res = soft_crc32_block(CRC32_INIT, srcR, DATA_TO_CHECK_LEN);
+    //crc_res_sav = crc_res;
+    printf("crc_res 0x%x \n", crc_res);
+    crclorec = crc_res & 0x0000ffff;
+    printf("crclorec  0x%x \n", crclorec);
+    crc_res_sav = crc_res & 0xffff0000;
+    printf("crc_res_sav  0x%x \n", crc_res_sav);
+    unsigned int shift_16 = 16;
+    crchirec = crc_res_sav >> shift_16;
+    printf("crchirec  0x%x \n", crchirec);
+    for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
+    printf("\n");
+ 
+}
+
 // This program
 // - Uses UART1 (the spare UART, by default) to transmit some text
 // - Uses a PIO state machine to receive that text
@@ -47,9 +94,9 @@ int main() {
     // Console output (also a UART, yes it's confusing)
     setup_default_uart();
     printf("Starting PIO UART RX example\n");
-    bool invert = true;
-    int i,j;
-    char c;
+
+    
+    
     // Set up the hard UART we're going to use to print characters
     uart_init(HARD_UART_INST, PIO_SERIAL_BAUD);
     gpio_set_function(HARD_UART_TX_PIN, GPIO_FUNC_UART);
@@ -58,7 +105,7 @@ int main() {
     PIO pio;
     uint sm;
     uint offset;
-
+    
     // This will find a free pio and state machine for our program and load it for us
     // We use pio_claim_free_sm_and_add_program_for_gpio_range (for_gpio_range variant)
     // so we will get a PIO instance suitable for addressing gpios >= 32 if needed and supported by the hardware
@@ -75,24 +122,28 @@ int main() {
 
     // Echo characters received from PIO to the console
     while (true) {
-	if ( invert == false) 
-        {
-	    // Invert the input logic hardware-wide (if using as an input)
-            gpio_set_inover(PIO_RX_PIN, GPIO_OVERRIDE_INVERT);
-    
-	    invert = true;
-	}
 	
-        while (c = uart_rx_program_getc(pio, sm) != 0x2c)
+        while ( (c = uart_rx_program_getc(pio, sm)) != 0x2c)
 	{
 	}
-	i = TOTAL_LEN;
-	while(i > 0)
+	 
+	for(i=0;i < TOTAL_LEN;i++)
 	{
 	    c = uart_rx_program_getc(pio, sm);
 	    putchar(c);
-	    i--;
+	     
+	    
+	    
+	    srcR[i] = c;
 	}
+	    
+	
+	ck_crc();
+	    
+	    //9-1	0xfea0fdfe	1-9	0x340bc6d9
+	    //		fefda0fe		d9c60b34
+	    
+	
     }
 
     // This will free resources and unload our program
