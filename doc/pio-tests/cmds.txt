@@ -3,6 +3,10 @@ cp ../../../pio/uart_rx/uart_rx.c.tst2 ../../../pio/uart_rx/uart_rx.c
 
 cp ../../../pio/uart_tx/uart_tx.c.tst2 ../../../pio/uart_tx/uart_tx.c 
 
+cp ../../../pio/cpp_uart_rx/main.cpp.tst ../../../pio/cpp_uart_rx/main.cpp
+
+cp ../../../pio/cpp_uart_tx/main.cpp.tst ../../../pio/cpp_uart_tx/main.cpp
+
 make clean; make
 
 scp pio_uart_rx.uf2 pi4-60:/media/devel/RP2350/
