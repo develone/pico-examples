@@ -1,0 +1,43 @@
+crchirecR  0xc6d9                                                               
+crclorecR  0x340b                                                               
+1 2 3 4 5 64crc_res 0x340bc6d9                                                  
+crclorec  0xc6d9                                                                
+crchirec  0x340b                                                                
+hihi 0x34 hilo 0xb lohi 0xc6 lolo 0xd9                                          
+crchirecR  0xc6d9                                                               
+crclorecR  0x340b                                                               
+1 2 3 4 5 6 7 8 9                                                               
+
+123456789ÙÆ4crc_res 0x340bc6d9 
+crclorec  0xc6d9 
+crchirec  0x340b 
+hihi 0x34 hilo 0xb lohi 0xc6 lolo 0xd9 
+crchirecR  0xc6d9 
+crclorecR  0x340b 
+1 2 3 4 5 6 7 8 9 
+98¿654321þý þcrc_res 0x4559596b 
+crclorec  0x596b 
+crchirec  0x4559 
+hihi 0x45 hilo 0x59 lohi 0x59 lolo 0x6b 
+crchirecR  0xfdfe 
+crclorecR  0xfea0 
+987654321þý þcrc_res 0xfea0fdfe 
+crclorec  0xfdfe 
+crchirec  0xfea0 
+hihi 0xfe hilo 0xa0 lohi 0xfd lolo 0xfe 
+9 8 7 6 5 4 3 2 1 
+987654321þý þcrc_res 0xfea0fdfe 
+crclorec  0xfdfe 
+crchirec  0xfea0 
+hihi 0xfe hilo 0xa0 lohi 0xfd lolo 0xfe 
+9 8 7 6 5 4 3 2 1 
+987654321þý þcrc_res 0xfea0fdfe                                                 
+crclorec  0xfdfe                                                                
+crchirec  0xfea0                                                                
+hihi 0xfe hilo 0xa0 lohi 0xfd lolo 0xfe                                         
+9 8 7 6 5 4 3 2 1                                                               
+987654321þý þcrc_res 0xfea0fdfe                                                 
+crclorec  0xfdfe                                                                
+crchirec  0xfea0                                                                
+hihi 0xfe hilo 0xa0 lohi 0xfd lolo 0xfe                                         
+9 8 7 6 5 4 3 2 1

@@ -20,6 +20,8 @@
 static uint8_t src[TOTAL_LEN] = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00, 0x00, 0x00, 0x00 };
 uint16_t crchirec;
 uint16_t crclorec;
+uint16_t crchirecR;
+uint16_t crclorecR;
 uint32_t crc_res;
 uint32_t crc_res_sav;
 uint8_t hihi;
@@ -55,12 +57,12 @@ void ck_crc(void)
     //crc_res_sav = crc_res;
     printf("crc_res 0x%x \n", crc_res);
     crclorec = crc_res & 0x0000ffff;
-    //printf("crclorec  0x%x \n", crclorec);
+    printf("crclorec  0x%x \n", crclorec);
     crc_res_sav = crc_res & 0xffff0000;
     //printf("crc_res_sav  0x%x \n", crc_res_sav);
     unsigned int shift_16 = 16;
     crchirec = crc_res_sav >> shift_16;
-    //printf("crchirec  0x%x \n", crchirec);
+    printf("crchirec  0x%x \n", crchirec);
     //for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
     //printf("\n");
     unsigned int shift_8 = 8;
@@ -88,6 +90,29 @@ void ck_crc(void)
     {
         for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
 	printf("\n");
+    }
+    else
+    {
+	cks = 0;
+	crchirecR = srcR[9];
+	crchirecR = crchirecR << shift_8;
+	crchirecR = crchirecR + srcR[10];
+	crchirecR = swap_uint16(crchirecR);
+	printf("crchirecR  0x%x \n", crchirecR);
+	crclorecR = srcR[11];
+	crclorecR = crclorecR << shift_8;
+	crclorecR = crclorecR + srcR[12];
+	crclorecR = swap_uint16(crclorecR);
+	printf("crclorecR  0x%x \n", crclorecR);
+	if ( crclorec == crchirecR) cks = 1;
+	if ( crchirec == crclorecR) cks = 2;
+	if (cks == 2)
+	{
+	    for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
+	    printf("\n");
+	}
+	
+        	
     }
 }
 
