@@ -22,6 +22,10 @@ uint16_t crchirec;
 uint16_t crclorec;
 uint32_t crc_res;
 uint32_t crc_res_sav;
+uint8_t hihi;
+uint8_t hilo;
+uint8_t lohi;
+uint8_t lolo;
 char c;
 int i,j;
 static uint8_t src1[TOTAL_LEN] = { 0x39, 0x38, 0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x00, 0x00 };
@@ -51,15 +55,40 @@ void ck_crc(void)
     //crc_res_sav = crc_res;
     printf("crc_res 0x%x \n", crc_res);
     crclorec = crc_res & 0x0000ffff;
-    printf("crclorec  0x%x \n", crclorec);
+    //printf("crclorec  0x%x \n", crclorec);
     crc_res_sav = crc_res & 0xffff0000;
-    printf("crc_res_sav  0x%x \n", crc_res_sav);
+    //printf("crc_res_sav  0x%x \n", crc_res_sav);
     unsigned int shift_16 = 16;
     crchirec = crc_res_sav >> shift_16;
-    printf("crchirec  0x%x \n", crchirec);
-    for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
-    printf("\n");
+    //printf("crchirec  0x%x \n", crchirec);
+    //for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
+    //printf("\n");
+    unsigned int shift_8 = 8;
+    uint8_t cks = 0;
+     
+    uint8_t crclo;
+   
+    // upper 8 bits shifted lower 8 bits
+    hihi = crchirec >> shift_8;
+    crclo = crchirec & 0x00ff;
+    hilo = crclo;
+    
  
+    // upper 8 bits shifted lower 8 bits
+    lohi = crclorec >> shift_8;
+    crclo = crclorec & 0x00ff;
+    lolo = crclo;
+    
+    printf("hihi 0x%x hilo 0x%x lohi 0x%x lolo 0x%x \n", hihi, hilo, lohi, lolo);
+    if (hihi == srcR[9]) cks = 1;
+    if (hilo == srcR[10]) cks = 2;
+    if (lohi == srcR[11]) cks = 3;
+    if (lolo == srcR[12]) cks = 4;
+    if (cks == 4)
+    {
+        for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
+	printf("\n");
+    }
 }
 
 // This program
