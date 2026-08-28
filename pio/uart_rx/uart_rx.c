@@ -55,14 +55,14 @@ void ck_crc(void)
 {
     crc_res = soft_crc32_block(CRC32_INIT, srcR, DATA_TO_CHECK_LEN);
     //crc_res_sav = crc_res;
-    printf("crc_res 0x%x \n", crc_res);
+    //printf("crc_res 0x%x \n", crc_res);
     crclorec = crc_res & 0x0000ffff;
-    printf("crclorec  0x%x \n", crclorec);
+    //printf("crclorec  0x%x \n", crclorec);
     crc_res_sav = crc_res & 0xffff0000;
     //printf("crc_res_sav  0x%x \n", crc_res_sav);
     unsigned int shift_16 = 16;
     crchirec = crc_res_sav >> shift_16;
-    printf("crchirec  0x%x \n", crchirec);
+    //printf("crchirec  0x%x \n", crchirec);
     //for(i=0;i<DATA_TO_CHECK_LEN;i++) printf("%c ",srcR[i]);
     //printf("\n");
     unsigned int shift_8 = 8;
@@ -81,7 +81,7 @@ void ck_crc(void)
     crclo = crclorec & 0x00ff;
     lolo = crclo;
     
-    printf("hihi 0x%x hilo 0x%x lohi 0x%x lolo 0x%x \n", hihi, hilo, lohi, lolo);
+    //printf("hihi 0x%x hilo 0x%x lohi 0x%x lolo 0x%x \n", hihi, hilo, lohi, lolo);
     if (hihi == srcR[9]) cks = 1;
     if (hilo == srcR[10]) cks = 2;
     if (lohi == srcR[11]) cks = 3;
@@ -98,12 +98,12 @@ void ck_crc(void)
 	crchirecR = crchirecR << shift_8;
 	crchirecR = crchirecR + srcR[10];
 	crchirecR = swap_uint16(crchirecR);
-	printf("crchirecR  0x%x \n", crchirecR);
+	//printf("crchirecR  0x%x \n", crchirecR);
 	crclorecR = srcR[11];
 	crclorecR = crclorecR << shift_8;
 	crclorecR = crclorecR + srcR[12];
 	crclorecR = swap_uint16(crclorecR);
-	printf("crclorecR  0x%x \n", crclorecR);
+	//printf("crclorecR  0x%x \n", crclorecR);
 	if ( crclorec == crchirecR) cks = 1;
 	if ( crchirec == crclorecR) cks = 2;
 	if (cks == 2)
@@ -184,7 +184,7 @@ int main() {
 	for(i=0;i < TOTAL_LEN;i++)
 	{
 	    c = uart_rx_program_getc(pio, sm);
-	    putchar(c);
+	    //putchar(c);
 	     
 	    
 	    
