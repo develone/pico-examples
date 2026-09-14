@@ -1,4 +1,14 @@
 09/13/26
+
+GP3 5                        3V3 36
+
+GP12 16 D0+               GP19 25 D1+
+GP13 17 D0-                GP18 24 D1-
+GRD  18                       GRD 23
+GP14 19 Clock+            GP17 22 D2-
+GP15 20 Clock-             GP16 21 D2+
+
+09/13/26
 collect the samples in xx.csv
 
 need to add the header to file csv file
