@@ -1,0 +1,86 @@
+To generate an rgb332.h header file from an image for use in embedded systems (like microcontrollers or retro-displays), you need to downsample a standard 24-bit RGB888 image to an 8-bit RGB332 format (3 bits Red, 3 bits Green, 2 bits Blue) and format the raw byte data into a C/C++ array.
+
+pip install Pillow
+
+Skip to main content
+Accessibility help
+how generate rgb332.h from image
+AI Mode
+All
+Images
+Videos
+Forums
+Shopping
+Short videos
+More
+Tools
+AI Overview
+To generate an rgb332.h header file from an image for use in embedded systems (like microcontrollers or retro-displays), you need to downsample a standard 24-bit RGB888 image to an 8-bit RGB332 format (3 bits Red, 3 bits Green, 2 bits Blue) and format the raw byte data into a C/C++ array.
+The most efficient and automated way to do this is by using a Python script with the Pillow library to parse the pixels and format the output file.
+Prerequisites
+You need Python and the Pillow library installed on your computer. Run this command in your terminal:
+bash
+
+pip install Pillow
+
+Use code with caution.
+Python Script to Generate rgb332.h
+Create a Python file named img_to_rgb332.py and paste the following script into it:
+python
+
+import sys
+import os
+from PIL import Image
+
+def convert_to_rgb332(image_path, output_header_path):
+    if not os.path.exists(image_path):
+        print(f"Error: Image path '{image_path}' does not exist.")
+        return
+
+    # Open image and convert to standard 24-bit RGB
+    img = Image.open(image_path).convert('RGB')
+    width, height = img.size
+    
+    # Extract filename for variable names
+    base_name = os.path.splitext(os.path.basename(image_path))[0]
+    var_name = "".join([c if c.isalnum() else "_" for c in base_name]).lower()
+
+    with open(output_header_path, 'w') as f:
+        # Write file guards and metadata
+        f.write(f"#ifndef _{var_name.upper()}_H_\n")
+        f.write(f"#define _{var_name.upper()}_H_\n\n")
+        f.write("#include <stdint.h>\n\n")
+        f.write(f"// Image Dimensions\n")
+        f.write(f"#define {var_name.upper()}_WIDTH  {width}\n")
+        f.write(f"#define {var_name.upper()}_HEIGHT {height}\n\n")
+        f.write(f"// RGB332 Pixel Data\n")
+        f.write(f"const uint8_t {var_name}_data[{width * height}] = {{\n")
+
+        # Process each pixel line by line
+        for y in range(height):
+            f.write("    ")
+            for x in range(width):
+                r, g, b = img.getpixel((x, y))
+                
+                # Downsample channels: R (3-bits), G (3-bits), B (2-bits)
+                r_3bit = (r >> 5) & 0x07
+                g_3bit = (g >> 5) & 0x07
+                b_2bit = (b >> 6) & 0x03
+                
+                # Combine into a single byte (RRRGGGBB)
+                rgb332_byte = (r_3bit << 5) | (g_3bit << 2) | b_2bit
+                
+                f.write(f"0x{rgb332_byte:02X}, ")
+            f.write("\n")
+
+        f.write("};\n\n")
+        f.write("#endif\n")
+    
+    print(f"Success! Generated {output_header_path} ({width}x{height} pixels).")
+
+if __name__ == "__main__":
+    # Change 'my_image.png' to your actual image file name
+    convert_to_rgb332("my_image.png", "rgb332.h")
+
+python img_to_rgb332.py
+
