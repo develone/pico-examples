@@ -1,5 +1,26 @@
 09/14/26
 https://learn.adafruit.com/adafruit-picowbell-hstx-dvi-output/arduino
+
+HSTX stands for High-Speed Serial Transmit, a new hardware peripheral introduced on the Raspberry Pi 
+RP2350 microcontroller. [1] (https://www.digikey.com/en/maker/tutorials/2025/what-is-the-rp2350-high-speed-transmit-interface-hstx), [2] (https://www.cnx-software.com/2024/08/15/raspberry-pi-rp2350-hstx-high-speed-serial-transmit-interface/)
+
+What is HSTX?
+High-Speed Serial Output: It streams data from the system clock domain to up to eight GPIO pins 
+(GPIO 12 through 19) without needing much help from the main CPU
+
+Independent Clock: It runs in its own clock domain at up to 150 MHz.
+
+Double Data Rate (DDR): It transmits two bits per pin and clock cycle, reaching an effective 
+rate of 300 Mb/s per pin (or 2.4 Gb/s total across all eight pins)
+
+What is it used for?
+Video Generation: It creates high-speed video signals like DVI and VGA directly from the microcontroller.
+
+Fast Data Streaming: It handles high-speed memory interfacing and fast audio transmission with 
+near-zero CPU overhead.
+
+https://www.cnx-software.com/2024/08/15/raspberry-pi-rp2350-hstx-high-speed-serial-transmit-interface/
+
 09/13/26
 
 GP3 5                        3V3 36
