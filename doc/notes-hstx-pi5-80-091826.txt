@@ -1,0 +1,51 @@
+09/18/26
+devel@pi5-80: $ mkdir pio
+devel@pi5-80: $ cd pio
+devel@pi5-80:~/pio $ mkdir pico2
+devel@pi5-80:~/pio $ cd pico2
+devel@pi5-80:~/pio/pico2 $ git clone -b test-dev https://github.com/develone/pico-examples.git
+devel@pi5-80:~/pio/pico2 $ cd pico-examples
+devel@pi5-80:~/pio/pico2/pico-examples $ vi compile-rp2350.sh
+commet last line make
+
+devel@pi5-80:~/pio/pico2/pico-examples $ ./compile-rp2350.sh 
+devel@pi5-80:~/pio/pico2/pico-examples $ cd build-rp2350/hstx/dvi_out_hstx_encoder/
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ git diff ../../../compile-rp2350.sh
+diff --git a/compile-rp2350.sh b/compile-rp2350.sh
+index 596732e..af2b30d 100755
+--- a/compile-rp2350.sh
++++ b/compile-rp2350.sh
+@@ -3,5 +3,5 @@ rm -rf build-rp2350
+ mkdir build-rp2350
+ cd build-rp2350
+ cmake .. -DPICO_BOARD=pico2_w -DPICO_PLATFORM=rp2350 -DWIFI_SSID="WIFI_SSID" -DWIFI_PASSWORD="WIFI_PASSWORD"
+-make
++#make
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ make
+depress bootsel and pwr-up
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ df
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ cp dvi_out_hstx_encoder.uf2 /media/devel/RP2350/
+mountains displayed on hdmi
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ cp ../../../hstx/dvi_out_hstx_encoder/lena_dvi_out_hstx_encoder.c ../../../hstx/dvi_out_hstx_encoder/dvi_out_hstx_encoder.c
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ make
+depress bootsel and pwr-up
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/hstx/dvi_out_hstx_encoder $ cp dvi_out_hstx_encoder.uf2 /media/devel/RP2350/
+lena displayed on hdmi
+
+#export PICO_2350=1
+#export PIPELINEC_REPO=$HOME/PipelineC
+#****************************************
+export FREERTOS_KERNEL_PATH=/home/devel/pico2/freertos-lib/FreeRTOS-Kernel
+export OSS_CAD_SUITE=$HOME/oss-cad-suite/bin
+export PICO_SDK_PATH=/home/devel/pico2/pico-sdk
+export PICTOOL_FETCH_FROM_GITHUB=/home/devel/pico2/BUILT_PICOTOOL
+export PIPELINEC_REPO="$HOME/PipelineC"
+export PICO_EXTRAS_PATH=/home/devel/pico-extras
+echo $FREERTOS_KERNEL_PATH $OSS_CAD_SUITE 
+echo $PICO_SDK_PATH $PICTOOL_FETCH_FROM_GITHUB
+echo $PICO_EXTRAS_PATH
+#export PATH="$HOME/.pyenv/bin:$HOME/local/openocd/bin:$HOME/qemu-6.2.0-rpios/bin:$PATH"
+export PATH="$HOME/.pyenv/bin:$HOME/local/openocd/bin:$OSS_CAD_SUITE:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+echo $PATH
