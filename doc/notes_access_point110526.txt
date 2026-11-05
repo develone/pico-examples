@@ -1,0 +1,98 @@
+devel@pi5-80:~/pio/pico2/pico-examples $ cd build-rp2350/pico_w/wifi/access_point/
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/pico_w/wifi/access_point $ ls
+CMakeFiles                             picow_access_point_background.uf2
+cmake_install.cmake                    picow_access_point_poll.bin
+Makefile                               picow_access_point_poll.dis
+picow_access_point_background.bin      picow_access_point_poll.elf
+picow_access_point_background.dis      picow_access_point_poll.elf.map
+picow_access_point_background.elf      picow_access_point_poll.hex
+picow_access_point_background.elf.map  picow_access_point_poll.uf2
+picow_access_point_background.hex
+devel@pi5-80:~/pio/pico2/pico-examples/build-rp2350/pico_w/wifi/access_point $ cp picow_access_point_poll.uf2 /media/devel/RP2350/
+
+devel@pi5-80:~ $ minicom myusb0
+
+
+Welcome to minicom 2.8
+
+OPTIONS: I18n 
+Port /dev/ttyUSB0, 13:08:24
+
+Press CTRL-A Z for help on special keys
+
+bÄÌçstarting server on port 80
+Try connecting to 'picow_test' (press 'd' to disable access point)
+DHCPS: client connected: MAC=2c:cf:67:34:c6:53 IP=192.168.4.16
+DHCPS: client connected: MAC=ea:82:b5:4d:29:44 IP=192.168.4.17
+client connected
+tcp_server_recv 160 err 0
+Request: / HTTP/1.1
+Connection: close
+User-Agent: Dalvik/2.1.0 (Linux; U; Android 17; SM-A376U Build/CP2A.260605.016)
+Host: 192.1?
+Result: 0
+Sending redirect HTTP/1.1 302 Redirect
+Location: http://192.168.4.1/ledtest
+
+tcp_server_sent 60
+all done                                                                        
+client connected                                                                
+tcp_server_recv 167 err 0                                                       
+Request: /ledtest HTTP/1.1                                                      
+Connection: close                                                               
+User-Agent: Dalvik/2.1.0 (Linux; U; Android 17; SM-A376U Build/CP2A.260605.016) 
+Host?                                                                           
+Result: 103                                                                     
+tcp_server_sent 197                                                             
+all done 
+
+
+devel@pi5-80:~ $ sudo nmap -sP 192.168.4.0/24
+Starting Nmap 7.93 ( https://nmap.org ) at 2026-11-05 13:19 EST
+Nmap scan report for 192.168.4.1
+Host is up (0.0063s latency).
+MAC Address: 2C:CF:67:F2:DE:99 (Unknown)
+Nmap scan report for 192.168.4.16
+Host is up.
+Nmap done: 256 IP addresses (2 hosts up) scanned in 27.91 seconds
+devel@pi5-80:~ $ sudo nmap -sP 192.168.4.0/24
+Starting Nmap 7.93 ( https://nmap.org ) at 2026-11-05 13:24 EST
+Nmap scan report for 192.168.4.1
+Host is up (0.0059s latency).
+MAC Address: 2C:CF:67:F2:DE:99 (Unknown)
+Nmap scan report for 192.168.4.17
+Host is up (0.094s latency).
+MAC Address: EA:82:B5:4D:29:44 (Unknown)
+Nmap scan report for 192.168.4.16
+Host is up.
+Nmap done: 256 IP addresses (3 hosts up) scanned in 28.06 seconds
+
+pi4-20 
+
+interface=wlan0
+driver=nl80211
+ssid=Century Link4
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=**********
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+devel@pi4-20:~ $ ./scripts-rpi/mosquitto/mos.sh 
+1793907599: mosquitto version 2.0.11 starting
+1793907599: Config loaded from /etc/mosquitto/mosquitto.conf.
+1793907599: Opening ipv4 listen socket on port 1883.
+1793907599: Opening ipv6 listen socket on port 1883.
+1793907599: mosquitto version 2.0.11 running
+devel@pi4-20:~ $ 1793907603: New connection from 192.168.16.117:50815 on port 1883.
+1793907603: New client connected from 192.168.16.117:50815 as remote5 (p2, c1, k10, u'testuser').
+1793907726: New connection from ::1:34276 on port 1883.
+1793907726: New client connected from ::1:34276 as auto-27C8CC96-3F1C-8754-3346-9D7DB3525D85 (p2, c1, k60, u'testuser').
+devel@pi4-20:~ $ ./scripts-rpi/mosquitto/mos-q.sh 
+T = 30.42 C 0x04e batt = 0.06 remote5 
